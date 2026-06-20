@@ -1,0 +1,51 @@
+# =========================================================
+# Configuration de l'administration (Decap CMS) — DJ G&V
+# Voir SETUP-ADMIN.md pour la mise en place complète.
+# =========================================================
+
+backend:
+  name: github
+  repo: guillaume-KLN/dj-gv-site   # ton dépôt GitHub
+  branch: main
+  # base_url = adresse de ton site en ligne (sert à l'authentification)
+  base_url: https://dj-gv.netlify.app
+  auth_endpoint: /.netlify/functions/auth
+
+# Langue de l'interface d'admin
+locale: "fr"
+
+# Dossier où sont enregistrées les photos uploadées
+media_folder: "assets/photos"
+public_folder: "/assets/photos"
+
+# Message de commit lisible quand tu ajoutes/modifies une photo
+slug:
+  encoding: "ascii"
+  clean_accents: true
+
+collections:
+  - name: "galerie"
+    label: "Galerie photos"
+    description: "Ajoute, supprime ou réordonne les photos de la page Photos."
+    files:
+      - name: "photos"
+        label: "Photos de la galerie"
+        file: "data/gallery.json"
+        format: "json"
+        fields:
+          - name: "photos"
+            label: "Photos"
+            label_singular: "Photo"
+            widget: "list"
+            summary: "{{fields.caption}}"
+            fields:
+              - { name: "image", label: "Image", widget: "image" }
+              - { name: "caption", label: "Légende (optionnel)", widget: "string", required: false }
+              - name: "size"
+                label: "Taille de la vignette"
+                widget: "select"
+                default: "normal"
+                options:
+                  - { label: "Normale", value: "normal" }
+                  - { label: "Large (2 colonnes)", value: "wide" }
+                  - { label: "Haute (2 rangées)", value: "tall" }
