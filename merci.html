@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merci — DJ G&amp;V</title>
+  <meta name="description" content="Merci pour votre demande. DJ G&V vous répond sous 48 heures." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Mise en page centrée propre à la page de confirmation */
+    .thanks {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 2rem;
+      background: radial-gradient(120% 90% at 50% 0%, #f7f0df 0%, var(--bg) 60%, #e6d9bd 100%);
+    }
+    .thanks__inner { max-width: 560px; }
+    .thanks__check {
+      width: 76px; height: 76px; margin: 0 auto 2rem;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      color: var(--gold);
+      border: 1px solid var(--line);
+      background: rgba(201, 162, 75, 0.06);
+    }
+    .thanks__check svg { width: 36px; height: 36px; }
+    .thanks h1 {
+      font-family: var(--font-serif); font-weight: 500;
+      font-size: clamp(2.2rem, 6vw, 3.4rem); color: var(--cream);
+      margin-bottom: 1rem; line-height: 1.1;
+    }
+    .thanks p { color: var(--cream-dim); margin-bottom: 2rem; }
+    .thanks .brand { justify-content: center; margin-bottom: 2.5rem; }
+  </style>
+</head>
+<body>
+  <main class="thanks">
+    <div class="thanks__inner">
+      <a href="index.html" class="brand">
+        <img src="assets/logo.png?v=3" alt="DJ G&V" class="brand__logo" width="640" height="562" />
+      </a>
+
+      <div class="thanks__check" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5" />
+        </svg>
+      </div>
+
+      <h1>Merci pour votre demande</h1>
+      <p>
+        Votre message a bien été envoyé. Je reviens vers vous personnellement
+        sous 48&nbsp;heures avec une proposition adaptée à votre événement.
+      </p>
+
+      <a href="index.html" class="btn btn--gold">Retour à l'accueil</a>
+    </div>
+  </main>
+</body>
+</html>

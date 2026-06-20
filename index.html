@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DJ G&amp;V — DJ professionnel mariages &amp; événements premium · Vaucluse / PACA</title>
+  <meta name="description" content="DJ G&V, DJ professionnel haut de gamme spécialisé dans les mariages et événements privés en Provence (Vaucluse / PACA). Setup son et lumières DMX, ambiance élégante et sur-mesure." />
+  <meta name="theme-color" content="#efe6d1" />
+
+  <!-- Favicons (générés depuis le logo) -->
+  <link rel="icon" href="assets/favicon.ico?v=2" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="DJ G&V — DJ premium mariages & événements · Provence" />
+  <meta property="og:description" content="L'art de faire danser vos invités. DJ haut de gamme pour mariages et événements d'exception en Vaucluse et PACA." />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Polices Google : serif élégant (titres) + script (accent) + sans-serif (corps) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Great+Vibes&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- =========================================================
+       EN-TÊTE / NAVIGATION FIXE
+  ========================================================== -->
+  <header class="site-header" id="header">
+    <div class="container header__inner">
+      <a href="#accueil" class="brand" aria-label="DJ G&V — retour à l'accueil">
+        <img src="assets/logo.png?v=3" alt="DJ G&V" class="brand__logo" width="640" height="562" />
+      </a>
+
+      <nav class="nav" aria-label="Navigation principale">
+        <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Ouvrir le menu">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav__menu" id="navMenu">
+          <li><a href="#accueil" class="nav__link">Accueil</a></li>
+          <li><a href="#partenaires" class="nav__link">Partenaires</a></li>
+          <li><a href="#photos" class="nav__link">Photos</a></li>
+          <li><a href="#contact" class="nav__link">Contact</a></li>
+          <li><a href="#contact" class="nav__cta btn btn--small btn--gold">Réserver une date</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- =========================================================
+         ACCUEIL — HERO PLEIN ÉCRAN (avec parallaxe discret)
+    ========================================================== -->
+    <section class="hero" id="accueil">
+      <!-- Couches de parallaxe -->
+      <div class="hero__bg" data-parallax="0.25" aria-hidden="true"></div>
+      <div class="hero__glow" data-parallax="0.5" aria-hidden="true"></div>
+      <div class="hero__grain" aria-hidden="true"></div>
+      <canvas class="hero__particles" id="heroParticles" aria-hidden="true"></canvas>
+
+      <div class="container hero__content">
+        <p class="eyebrow reveal" data-reveal>Provence · Vaucluse · PACA</p>
+        <h1 class="hero__title reveal" data-reveal data-reveal-delay="100">
+          <img src="assets/logo.png?v=3" alt="DJ G&V — DJ professionnel mariages &amp; événements" class="hero__logo" width="640" height="562" />
+        </h1>
+        <p class="hero__tagline reveal" data-reveal data-reveal-delay="200">
+          L'art de faire danser vos invités.<br />
+          DJ professionnel pour mariages &amp; événements d'exception.
+        </p>
+        <div class="hero__actions reveal" data-reveal data-reveal-delay="300">
+          <a href="#contact" class="btn btn--gold">Réserver une date</a>
+          <a href="#prestations" class="btn btn--ghost">Découvrir les prestations</a>
+        </div>
+      </div>
+
+      <a href="#presentation" class="hero__scroll" aria-label="Défiler vers le bas">
+        <span class="hero__scroll-line"></span>
+      </a>
+    </section>
+
+    <!-- =========================================================
+         PRÉSENTATION / QUI SUIS-JE
+    ========================================================== -->
+    <section class="section presentation" id="presentation">
+      <div class="container presentation__grid">
+        <div class="presentation__media reveal" data-reveal>
+          <div class="portrait">
+            <!-- Emplacement photo portrait DJ (placeholder élégant) -->
+            <span class="portrait__label">Votre portrait</span>
+            <svg class="portrait__sprig" viewBox="0 0 120 60" aria-hidden="true">
+              <path d="M10 50 C 40 10, 80 10, 110 50" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <g fill="currentColor" opacity="0.85">
+                <ellipse cx="30" cy="30" rx="7" ry="3.4" transform="rotate(-35 30 30)"/>
+                <ellipse cx="50" cy="22" rx="7" ry="3.4" transform="rotate(-20 50 22)"/>
+                <ellipse cx="70" cy="22" rx="7" ry="3.4" transform="rotate(20 70 22)"/>
+                <ellipse cx="90" cy="30" rx="7" ry="3.4" transform="rotate(35 90 30)"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="presentation__text">
+          <p class="eyebrow reveal" data-reveal>Qui suis-je</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Une signature sonore, pensée pour l'instant&nbsp;présent</h2>
+          <p class="lead reveal" data-reveal data-reveal-delay="160">
+            Derrière <strong>DJ G&amp;V</strong>, une passion : transformer un lieu en souvenir inoubliable.
+            Basé en plein cœur du Vaucluse, j'accompagne les couples et les organisateurs les plus
+            exigeants de toute la région PACA.
+          </p>
+          <p class="reveal" data-reveal data-reveal-delay="220">
+            De la cérémonie au bout de la nuit, je compose une ambiance sur-mesure&nbsp;: lecture fine de
+            la piste, transitions soignées, et un sens du détail qui fait la différence. Discrétion,
+            élégance et énergie maîtrisée — pour que chaque moment trouve sa juste note.
+          </p>
+
+          <ul class="stats reveal" data-reveal data-reveal-delay="280">
+            <li><span class="stats__num">50+</span><span class="stats__label">Événements animés</span></li>
+            <li><span class="stats__num">100%</span><span class="stats__label">Sur-mesure</span></li>
+            <li><span class="stats__num">5★</span><span class="stats__label">Avis mariage.net</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PRESTATIONS
+    ========================================================== -->
+    <section class="section prestations" id="prestations">
+      <div class="container">
+        <header class="section__head">
+          <p class="eyebrow reveal" data-reveal>Prestations</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Pour chaque occasion, une&nbsp;ambiance d'exception</h2>
+        </header>
+
+        <div class="cards">
+          <!-- Mariages -->
+          <article class="card reveal" data-reveal>
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3 1.2 6 4 3-2.8 4-4 6-4 3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/>
+              </svg>
+            </div>
+            <h3 class="card__title">Mariages</h3>
+            <p class="card__text">
+              Cérémonie, cocktail, dîner et soirée dansante. Une trame musicale cohérente du premier
+              au dernier instant, en parfaite harmonie avec votre lieu et vos prestataires.
+            </p>
+          </article>
+
+          <!-- Soirées privées -->
+          <article class="card reveal" data-reveal data-reveal-delay="120">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>
+              </svg>
+            </div>
+            <h3 class="card__title">Soirées privées</h3>
+            <p class="card__text">
+              Anniversaires, fiançailles, fêtes de famille ou réceptions intimistes : une énergie
+              élégante et un répertoire pointu, adaptés à vos invités et à l'esprit du moment.
+            </p>
+          </article>
+
+          <!-- Événements d'entreprise -->
+          <article class="card reveal" data-reveal data-reveal-delay="240">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </div>
+            <h3 class="card__title">Événements d'entreprise</h3>
+            <p class="card__text">
+              Soirées de gala, lancements, séminaires et cocktails professionnels. Une prestation
+              sobre et raffinée qui valorise votre image et fédère vos équipes.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         OPTIONS & EXPÉRIENCES (mariages)
+    ========================================================== -->
+    <section class="section options" id="options">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Options &amp; expériences</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Des touches qui rendent<br />votre mariage inoubliable</h2>
+          <p class="section__sub reveal" data-reveal data-reveal-delay="140">
+            Des options exclusives à ajouter à votre prestation pour créer des moments d'émotion et de surprise.
+          </p>
+        </header>
+
+        <div class="options__grid">
+          <!-- Étincelles Froides -->
+          <article class="option reveal" data-reveal>
+            <span class="option__price">150&nbsp;€</span>
+            <span class="option__tag">Exclusivité mariage</span>
+            <div class="option__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l1.7 4.8L18.5 8.5l-4.8 1.7L12 15l-1.7-4.8L5.5 8.5l4.8-1.7z" />
+                <path d="M5 15l.9 2.3L8.2 18l-2.3.9L5 21l-.9-2.1L1.8 18l2.3-.7z" />
+              </svg>
+            </div>
+            <h3 class="option__title">Étincelles Froides</h3>
+            <p class="option__text">
+              Des fontaines à étincelles froides pour sublimer vos moments forts : entrée des
+              mariés, ouverture de bal ou découpe du gâteau. Un effet spectaculaire et photogénique.
+            </p>
+            <ul class="option__list">
+              <li>Sans flamme, sans fumée ni odeur</li>
+              <li>Utilisation sécurisée en intérieur comme en extérieur</li>
+              <li>Déclenchement synchronisé avec la musique</li>
+            </ul>
+          </article>
+
+          <!-- Livre d'or audio -->
+          <article class="option reveal" data-reveal data-reveal-delay="140">
+            <span class="option__price">100&nbsp;€</span>
+            <span class="option__tag">Exclusivité mariage</span>
+            <div class="option__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="12" rx="3" />
+                <path d="M5 10a7 7 0 0 0 14 0" />
+                <path d="M12 17v4M8 21h8" />
+              </svg>
+            </div>
+            <h3 class="option__title">Livre d'or audio</h3>
+            <p class="option__text">
+              Un combiné téléphonique rétro dans lequel vos invités laissent un message vocal.
+              Bien plus émouvant qu'un livre d'or papier — un souvenir à réécouter pour toujours.
+            </p>
+            <ul class="option__list">
+              <li>Messages vocaux spontanés et sincères</li>
+              <li>Combiné élégant qui s'intègre à votre décoration</li>
+              <li>Tous les enregistrements remis après le mariage</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         ÉQUIPEMENT SON & LUMIÈRES DMX
+    ========================================================== -->
+    <section class="section equipement" id="equipement">
+      <div class="container equipement__grid">
+        <div class="equipement__text">
+          <p class="eyebrow reveal" data-reveal>Équipement</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Un son qui enveloppe,<br />une lumière qui sublime</h2>
+          <p class="lead reveal" data-reveal data-reveal-delay="160">
+            Du matériel professionnel haut de gamme, dimensionné pour votre lieu, et un pilotage
+            lumière soigné pour habiller l'espace avec goût.
+          </p>
+
+          <ul class="features">
+            <li class="feature reveal" data-reveal data-reveal-delay="200">
+              <span class="feature__dot" aria-hidden="true"></span>
+              <div>
+                <h3 class="feature__title">Sonorisation premium</h3>
+                <p class="feature__text">Enceintes et caissons calibrés par espace, restitution claire et puissante, sans saturation.</p>
+              </div>
+            </li>
+            <li class="feature reveal" data-reveal data-reveal-delay="260">
+              <span class="feature__dot" aria-hidden="true"></span>
+              <div>
+                <h3 class="feature__title">Lumières &amp; têtes mobiles DMX</h3>
+                <p class="feature__text">Jeux de lumière programmés en DMX, têtes mobiles et ambiances colorées synchronisées à la musique.</p>
+              </div>
+            </li>
+            <li class="feature reveal" data-reveal data-reveal-delay="320">
+              <span class="feature__dot" aria-hidden="true"></span>
+              <div>
+                <h3 class="feature__title">Installation &amp; discrétion</h3>
+                <p class="feature__text">Mise en place soignée et invisible, micros HF pour vos discours.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="equipement__media reveal" data-reveal data-reveal-delay="120">
+          <div class="gear-frame">
+            <span class="gear-frame__label">Visuel matériel / setup</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PARTENAIRES
+    ========================================================== -->
+    <section class="section partenaires" id="partenaires">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Ils me font confiance</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Partenaires &amp; lieux d'exception</h2>
+          <p class="section__sub reveal" data-reveal data-reveal-delay="140">
+            Un réseau de professionnels triés sur le volet pour des événements parfaitement orchestrés.
+          </p>
+        </header>
+
+        <!-- Wedding planners -->
+        <h3 class="partners__cat reveal" data-reveal>Wedding planners</h3>
+        <div class="partners__grid">
+          <div class="partner reveal" data-reveal><span>Logo partenaire</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="80"><span>Logo partenaire</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="160"><span>Logo partenaire</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="240"><span>Logo partenaire</span></div>
+        </div>
+
+        <!-- Lieux de réception -->
+        <h3 class="partners__cat reveal" data-reveal>Lieux de réception</h3>
+        <div class="partners__grid">
+          <div class="partner reveal" data-reveal><span>Domaine / Château</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="80"><span>Domaine / Château</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="160"><span>Domaine / Château</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="240"><span>Domaine / Château</span></div>
+        </div>
+
+        <!-- Traiteurs -->
+        <h3 class="partners__cat reveal" data-reveal>Traiteurs</h3>
+        <div class="partners__grid">
+          <div class="partner reveal" data-reveal><span>Logo traiteur</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="80"><span>Logo traiteur</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="160"><span>Logo traiteur</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="240"><span>Logo traiteur</span></div>
+        </div>
+
+        <!-- Photographes -->
+        <h3 class="partners__cat reveal" data-reveal>Photographes &amp; vidéastes</h3>
+        <div class="partners__grid">
+          <div class="partner reveal" data-reveal><span>Logo photographe</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="80"><span>Logo photographe</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="160"><span>Logo photographe</span></div>
+          <div class="partner reveal" data-reveal data-reveal-delay="240"><span>Logo photographe</span></div>
+        </div>
+
+        <p class="partners__note reveal" data-reveal>
+          Vous êtes prestataire et souhaitez collaborer&nbsp;?
+          <a href="#contact" class="link-gold">Échangeons ensemble.</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PHOTOS — GALERIE MOSAÏQUE + LIGHTBOX
+    ========================================================== -->
+    <section class="section photos" id="photos">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Galerie</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Quelques instants capturés</h2>
+          <p class="section__sub reveal" data-reveal data-reveal-delay="140">
+            Cliquez sur une image pour l'agrandir. Galerie de démonstration — vos photos prendront bientôt place ici.
+          </p>
+        </header>
+
+        <!-- La grille est générée pour partie en JS, mais reste fonctionnelle sans script -->
+        <div class="gallery" id="gallery" role="list">
+          <button class="gallery__item gallery__item--wide reveal" data-reveal role="listitem" data-caption="Première danse — lumière dorée">
+            <span class="gallery__placeholder" data-shade="1"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item reveal" data-reveal data-reveal-delay="80" role="listitem" data-caption="Piste de danse — têtes mobiles DMX">
+            <span class="gallery__placeholder" data-shade="2"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item reveal" data-reveal data-reveal-delay="160" role="listitem" data-caption="Cocktail en extérieur — domaine provençal">
+            <span class="gallery__placeholder" data-shade="3"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item gallery__item--tall reveal" data-reveal role="listitem" data-caption="Ambiance lounge — coucher de soleil">
+            <span class="gallery__placeholder" data-shade="4"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item reveal" data-reveal data-reveal-delay="80" role="listitem" data-caption="Setup DJ — élégance discrète">
+            <span class="gallery__placeholder" data-shade="5"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item gallery__item--wide reveal" data-reveal data-reveal-delay="160" role="listitem" data-caption="Soirée dansante — pleine énergie">
+            <span class="gallery__placeholder" data-shade="6"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item reveal" data-reveal role="listitem" data-caption="Discours &amp; émotion — micro HF">
+            <span class="gallery__placeholder" data-shade="7"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+          <button class="gallery__item reveal" data-reveal data-reveal-delay="80" role="listitem" data-caption="Détails lumière — olivier illuminé">
+            <span class="gallery__placeholder" data-shade="8"></span>
+            <span class="gallery__hint">Voir</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         TÉMOIGNAGES
+    ========================================================== -->
+    <section class="section temoignages" id="temoignages">
+      <div class="container">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Témoignages</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Ce que disent les mariés</h2>
+          <p class="section__sub reveal" data-reveal data-reveal-delay="140">
+            La plus belle des récompenses : la piste de danse qui ne se vide jamais.
+          </p>
+        </header>
+
+        <div class="temoignages__grid">
+          <figure class="temoignage reveal" data-reveal>
+            <div class="temoignage__stars" aria-label="Note : 5 sur 5">★★★★★</div>
+            <blockquote class="temoignage__quote">
+              « Ils ont été parfaits et mon mariage plus que réussi grâce à leur bonne humeur, le
+              choix respecté des musiques avec en prime quelques petites surprises tout au long de
+              cette soirée. Le temps est passé trop vite tellement nous nous sommes amusés ! Encore
+              merci à vous deux ! »
+            </blockquote>
+            <figcaption class="temoignage__author">
+              <span class="temoignage__name">Séverine</span>
+              <span class="temoignage__event">Mariage · Mai 2025</span>
+            </figcaption>
+          </figure>
+
+          <figure class="temoignage reveal" data-reveal data-reveal-delay="120">
+            <div class="temoignage__stars" aria-label="Note : 5 sur 5">★★★★★</div>
+            <blockquote class="temoignage__quote">
+              « Deux DJ au top ! Consciencieux dans leur travail, complémentaires, à l'écoute de nos
+              demandes. On est très contentes et on recommande fortement. Merci encore ! »
+            </blockquote>
+            <figcaption class="temoignage__author">
+              <span class="temoignage__name">Joanna</span>
+              <span class="temoignage__event">Mariage · Juin 2023</span>
+            </figcaption>
+          </figure>
+
+          <figure class="temoignage reveal" data-reveal data-reveal-delay="240">
+            <div class="temoignage__stars" aria-label="Note : 5 sur 5">★★★★★</div>
+            <blockquote class="temoignage__quote">
+              « Vincent et Guillaume sont au top ! Très professionnels et à l'écoute de nos demandes,
+              ils ont fait de notre mariage un moment inoubliable avec une ambiance de folie !
+              Je recommande à 100 % ! »
+            </blockquote>
+            <figcaption class="temoignage__author">
+              <span class="temoignage__name">Élodie</span>
+              <span class="temoignage__event">Mariage · Février 2023</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="temoignages__note reveal" data-reveal>
+          Retrouvez tous les avis vérifiés sur
+          <a href="https://www.mariages.net" target="_blank" rel="noopener" class="link-gold">mariages.net</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         FAQ (accordéon)
+    ========================================================== -->
+    <section class="section faq" id="faq">
+      <div class="container container--narrow">
+        <header class="section__head section__head--center">
+          <p class="eyebrow reveal" data-reveal>Questions fréquentes</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Tout ce qu'il faut savoir</h2>
+        </header>
+
+        <div class="faq__list">
+          <details class="faq__item reveal" data-reveal>
+            <summary class="faq__q">
+              Combien de temps à l'avance faut-il réserver ?
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a">
+              <p>Pour un mariage, l'idéal est de réserver 6 à 12 mois à l'avance, surtout pour les
+              dates de mai à septembre, très demandées en Provence. N'hésitez pas à me contacter
+              même tardivement : je fais mon possible selon mes disponibilités.</p>
+            </div>
+          </details>
+
+          <details class="faq__item reveal" data-reveal data-reveal-delay="80">
+            <summary class="faq__q">
+              Intervenez-vous dans toute la région PACA ?
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a">
+              <p>Oui. Basé dans le Vaucluse, je me déplace dans tout le Sud : Bouches-du-Rhône, Gard,
+              Alpes-de-Haute-Provence, Var… Les frais de déplacement éventuels sont précisés dans le devis.</p>
+            </div>
+          </details>
+
+          <details class="faq__item reveal" data-reveal data-reveal-delay="160">
+            <summary class="faq__q">
+              Le matériel son et lumières est-il fourni ?
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a">
+              <p>Absolument. Je viens avec une sonorisation professionnelle dimensionnée pour votre lieu,
+              des jeux de lumière et têtes mobiles DMX, ainsi que des micros HF pour vos discours.</p>
+            </div>
+          </details>
+
+          <details class="faq__item reveal" data-reveal data-reveal-delay="240">
+            <summary class="faq__q">
+              Comment se passe la réservation et l'acompte ?
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a">
+              <p>Après un premier échange pour cerner vos envies, je vous envoie un devis détaillé.
+              La date est bloquée à la signature du contrat accompagné d'un acompte ; le solde est
+              réglé avant l'événement. Tout est clair et sans surprise.</p>
+            </div>
+          </details>
+
+          <details class="faq__item reveal" data-reveal data-reveal-delay="320">
+            <summary class="faq__q">
+              Peut-on choisir les musiques et faire des demandes ?
+              <span class="faq__icon" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a">
+              <p>Bien sûr ! Nous préparons ensemble vos moments forts (entrée, ouverture de bal,
+              musiques à éviter…). Le jour J, je reste à l'écoute des demandes de vos invités tout
+              en gardant la cohérence de l'ambiance.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         CONTACT — FORMULAIRE NETLIFY + COORDONNÉES
+    ========================================================== -->
+    <section class="section contact" id="contact">
+      <div class="container contact__grid">
+
+        <div class="contact__intro">
+          <p class="eyebrow reveal" data-reveal>Contact</p>
+          <h2 class="section__title reveal" data-reveal data-reveal-delay="80">Réservez votre&nbsp;date</h2>
+          <p class="lead reveal" data-reveal data-reveal-delay="140">
+            Parlez-moi de votre projet. Je vous réponds personnellement sous 48&nbsp;h avec une
+            proposition adaptée à votre événement.
+          </p>
+
+          <ul class="contact__info reveal" data-reveal data-reveal-delay="200">
+            <li>
+              <span class="contact__info-label">Téléphone</span>
+              <a href="tel:+33661079824" class="link-gold">06 61 07 98 24</a>
+            </li>
+            <li>
+              <span class="contact__info-label">E-mail</span>
+              <a href="mailto:djguillaume13@outlook.fr" class="link-gold">djguillaume13@outlook.fr</a>
+            </li>
+            <li>
+              <span class="contact__info-label">Zone d'intervention</span>
+              <span>Vaucluse &amp; toute la région PACA (Provence-Alpes-Côte d'Azur), déplacements sur devis.</span>
+            </li>
+          </ul>
+
+          <div class="contact__social reveal" data-reveal data-reveal-delay="260">
+            <a href="https://www.mariages.net" target="_blank" rel="noopener" class="badge-mariage">
+              Profil vérifié sur <strong>mariages.net</strong>
+            </a>
+            <div class="socials" aria-label="Réseaux sociaux">
+              <a href="https://www.instagram.com/dj_g_v" class="social" aria-label="Instagram (@dj_g_v)" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+              </a>
+              <a href="https://www.facebook.com/search/top?q=DJ%20G%26V" class="social" aria-label="Facebook (DJ G&V)" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h-3a4 4 0 0 0-4 4v3H5v4h3v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULAIRE NETLIFY
+             - data-netlify="true" active la détection Netlify Forms
+             - name="contact" identifie le formulaire
+             - champ caché form-name requis
+             - honeypot anti-spam "bot-field"
+             - action="/merci.html" : redirection après envoi -->
+        <form
+          class="form reveal"
+          data-reveal
+          data-reveal-delay="120"
+          name="contact"
+          method="POST"
+          action="/merci.html"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+        >
+          <input type="hidden" name="form-name" value="contact" />
+          <!-- Honeypot : invisible pour les humains, piège à robots -->
+          <p class="hidden-field">
+            <label>Ne pas remplir : <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+          </p>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label for="nom">Nom complet *</label>
+              <input type="text" id="nom" name="nom" required autocomplete="name" placeholder="Prénom & nom" />
+            </div>
+            <div class="form__group">
+              <label for="email">E-mail *</label>
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="vous@exemple.fr" />
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label for="telephone">Téléphone</label>
+              <input type="tel" id="telephone" name="telephone" autocomplete="tel" placeholder="06 00 00 00 00" />
+            </div>
+            <div class="form__group">
+              <label for="date">Date de l'événement</label>
+              <input type="date" id="date" name="date_evenement" />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="prestation">Type de prestation *</label>
+            <select id="prestation" name="type_prestation" required>
+              <option value="" disabled selected>Choisissez…</option>
+              <option value="Mariage">Mariage</option>
+              <option value="Soirée privée">Soirée privée</option>
+              <option value="Événement d'entreprise">Événement d'entreprise</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form__group">
+            <label for="message">Votre message *</label>
+            <textarea id="message" name="message" rows="5" required placeholder="Lieu, nombre d'invités, ambiance souhaitée…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--gold btn--block">Envoyer ma demande</button>
+          <p class="form__note">* Champs obligatoires — réponse sous 48&nbsp;h.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       PIED DE PAGE
+  ========================================================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <a href="#accueil" class="brand brand--footer">
+        <img src="assets/logo.png?v=3" alt="DJ G&V" class="brand__logo" width="640" height="562" />
+      </a>
+      <p class="footer__tag">DJ premium · Mariages &amp; événements · Vaucluse / PACA</p>
+      <nav class="footer__nav" aria-label="Liens de pied de page">
+        <a href="#accueil">Accueil</a>
+        <a href="#partenaires">Partenaires</a>
+        <a href="#photos">Photos</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <p class="footer__copy">© <span id="year"></span> DJ G&amp;V — Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       LIGHTBOX (galerie photos)
+  ========================================================== -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Image agrandie">
+    <button class="lightbox__close" id="lbClose" aria-label="Fermer">&times;</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="Image précédente">&#8249;</button>
+    <figure class="lightbox__figure">
+      <span class="lightbox__image" id="lbImage"></span>
+      <figcaption class="lightbox__caption" id="lbCaption"></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Image suivante">&#8250;</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

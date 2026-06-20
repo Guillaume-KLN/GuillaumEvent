@@ -1,0 +1,53 @@
+# =========================================================
+# Configuration Netlify — DJ G&V
+# Site statique pur : aucun build nécessaire.
+# =========================================================
+
+[build]
+  # Le site est à la racine du dépôt ; rien à compiler.
+  publish = "."
+  command = ""
+
+# Fonctions serverless (authentification de l'admin Decap CMS)
+[functions]
+  directory = "netlify/functions"
+
+# En-têtes de sécurité et de cache (bonnes pratiques)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Revalidation des assets : rapide (ETag/304) tout en montrant
+# immédiatement les mises à jour après un redéploiement.
+[[headers]]
+  for = "/style.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/script.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Les images (logo, favicon) peuvent être mises en cache plus longtemps ;
+# on les versionne déjà via ?v= dans le HTML en cas de changement.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Le HTML ne doit jamais être servi périmé.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Redirection : ancienne URL "/merci" -> page de confirmation
+[[redirects]]
+  from = "/merci"
+  to = "/merci.html"
+  status = 301
