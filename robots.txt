@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /merci.html
+
+Sitemap: https://dj-gv.fr/sitemap.xml
