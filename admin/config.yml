@@ -49,3 +49,41 @@ collections:
                   - { label: "Normale", value: "normal" }
                   - { label: "Large (2 colonnes)", value: "wide" }
                   - { label: "Haute (2 rangées)", value: "tall" }
+
+  - name: "visuels"
+    label: "Visuels du site"
+    description: "Ta photo de présentation et le visuel du matériel/setup."
+    files:
+      - name: "site"
+        label: "Photos principales"
+        file: "data/site.json"
+        format: "json"
+        fields:
+          - { name: "portrait", label: "Photo de présentation (Qui suis-je)", widget: "image", required: false }
+          - { name: "setup", label: "Visuel matériel / setup (Équipement)", widget: "image", required: false }
+
+  - name: "partenaires"
+    label: "Partenaires"
+    description: "Logos des partenaires, classés par catégorie."
+    files:
+      - name: "partners"
+        label: "Liste des partenaires"
+        file: "data/partners.json"
+        format: "json"
+        fields:
+          - name: "partners"
+            label: "Partenaires"
+            label_singular: "Partenaire"
+            widget: "list"
+            summary: "{{fields.name}} ({{fields.category}})"
+            fields:
+              - { name: "name", label: "Nom", widget: "string" }
+              - { name: "logo", label: "Logo", widget: "image", required: false }
+              - name: "category"
+                label: "Catégorie"
+                widget: "select"
+                options:
+                  - { label: "Wedding planner", value: "planners" }
+                  - { label: "Lieu de réception", value: "lieux" }
+                  - { label: "Traiteur", value: "traiteurs" }
+                  - { label: "Photographe / vidéaste", value: "photographes" }

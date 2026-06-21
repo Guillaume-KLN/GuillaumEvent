@@ -544,6 +544,14 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   transition: transform var(--t-med), border-color var(--t-med), color var(--t-med), background var(--t-med);
 }
 .partner:hover { transform: translateY(-4px); border-color: var(--line); color: var(--gold-deep); background: rgba(156,122,38,0.08); }
+/* Tuile avec vrai logo (image) */
+.partner--logo { background: #fffdf7; padding: 0.9rem; }
+.partner--logo:hover { background: #fff; }
+.partner img { max-width: 80%; max-height: 66%; object-fit: contain; }
+/* Portrait / visuel matériel : on masque le texte placeholder quand une photo est définie */
+.portrait.has-img .portrait__label,
+.portrait.has-img .portrait__sprig { display: none; }
+.gear-frame.has-img .gear-frame__label { display: none; }
 .partners__note { margin-top: 2.5rem; text-align: center; color: var(--cream-dim); }
 
 /* =========================================================

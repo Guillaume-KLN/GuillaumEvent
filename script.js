@@ -199,6 +199,49 @@
   };
   renderGallery();
 
+  /* ---------- Contenus gérés par l'admin : portrait, setup, partenaires ---------- */
+  const setBgImage = (el, src) => {
+    if (!el || !src) return;
+    el.style.backgroundImage = "url('" + src + "')";
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+    el.classList.add('has-img');
+  };
+
+  // Portrait (présentation) + visuel matériel (équipement)
+  fetch('data/site.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((s) => {
+      if (!s) return;
+      setBgImage(document.getElementById('portrait'), s.portrait);
+      setBgImage(document.getElementById('setup'), s.setup);
+    })
+    .catch(() => {});
+
+  // Logos partenaires, regroupés par catégorie
+  fetch('data/partners.json', { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      const list = (data && data.partners) || [];
+      if (!list.length) return;
+      ['planners', 'lieux', 'traiteurs', 'photographes'].forEach((cat) => {
+        const grid = document.querySelector('.partners__grid[data-cat="' + cat + '"]');
+        if (!grid) return;
+        const items = list.filter((p) => p.category === cat);
+        if (!items.length) return; // catégorie vide -> on garde les placeholders
+        grid.innerHTML = items.map((p) => {
+          const name = String(p.name || '').replace(/"/g, '&quot;');
+          if (p.logo) {
+            return '<div class="partner partner--logo" title="' + name + '">' +
+                     '<img src="' + p.logo + '" alt="' + name + '" loading="lazy">' +
+                   '</div>';
+          }
+          return '<div class="partner"><span>' + name + '</span></div>';
+        }).join('');
+      });
+    })
+    .catch(() => {});
+
   if (lightbox) {
     lbClose.addEventListener('click', closeLightbox);
     lbPrev.addEventListener('click', () => showImage(currentIndex - 1));
