@@ -64,26 +64,46 @@ collections:
 
   - name: "partenaires"
     label: "Partenaires"
-    description: "Logos des partenaires, classés par catégorie."
+    description: "Logos des partenaires, une liste par type de prestataire."
     files:
       - name: "partners"
-        label: "Liste des partenaires"
+        label: "Partenaires par catégorie"
         file: "data/partners.json"
         format: "json"
         fields:
-          - name: "partners"
-            label: "Partenaires"
-            label_singular: "Partenaire"
+          - name: "planners"
+            label: "Wedding planners"
+            label_singular: "Wedding planner"
             widget: "list"
-            summary: "{{fields.name}} ({{fields.category}})"
+            required: false
+            summary: "{{fields.name}}"
             fields:
               - { name: "name", label: "Nom", widget: "string" }
               - { name: "logo", label: "Logo", widget: "image", required: false }
-              - name: "category"
-                label: "Catégorie"
-                widget: "select"
-                options:
-                  - { label: "Wedding planner", value: "planners" }
-                  - { label: "Lieu de réception", value: "lieux" }
-                  - { label: "Traiteur", value: "traiteurs" }
-                  - { label: "Photographe / vidéaste", value: "photographes" }
+          - name: "lieux"
+            label: "Lieux de réception"
+            label_singular: "Lieu"
+            widget: "list"
+            required: false
+            summary: "{{fields.name}}"
+            fields:
+              - { name: "name", label: "Nom", widget: "string" }
+              - { name: "logo", label: "Logo", widget: "image", required: false }
+          - name: "traiteurs"
+            label: "Traiteurs"
+            label_singular: "Traiteur"
+            widget: "list"
+            required: false
+            summary: "{{fields.name}}"
+            fields:
+              - { name: "name", label: "Nom", widget: "string" }
+              - { name: "logo", label: "Logo", widget: "image", required: false }
+          - name: "photographes"
+            label: "Photographes & vidéastes"
+            label_singular: "Photographe"
+            widget: "list"
+            required: false
+            summary: "{{fields.name}}"
+            fields:
+              - { name: "name", label: "Nom", widget: "string" }
+              - { name: "logo", label: "Logo", widget: "image", required: false }

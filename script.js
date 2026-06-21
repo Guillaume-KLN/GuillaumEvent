@@ -218,17 +218,15 @@
     })
     .catch(() => {});
 
-  // Logos partenaires, regroupés par catégorie
+  // Logos partenaires : une liste par catégorie
   fetch('data/partners.json', { cache: 'no-store' })
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
-      const list = (data && data.partners) || [];
-      if (!list.length) return;
+      if (!data) return;
       ['planners', 'lieux', 'traiteurs', 'photographes'].forEach((cat) => {
         const grid = document.querySelector('.partners__grid[data-cat="' + cat + '"]');
-        if (!grid) return;
-        const items = list.filter((p) => p.category === cat);
-        if (!items.length) return; // catégorie vide -> on garde les placeholders
+        const items = (data[cat]) || [];
+        if (!grid || !items.length) return; // catégorie vide -> on garde les placeholders
         grid.innerHTML = items.map((p) => {
           const name = String(p.name || '').replace(/"/g, '&quot;');
           if (p.logo) {
