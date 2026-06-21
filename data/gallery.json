@@ -1,3 +1,20 @@
 {
-  "photos": []
+  "photos": [
+    {
+      "size": "normal",
+      "image": "/assets/photos/img_0889.jpeg"
+    },
+    {
+      "size": "normal",
+      "image": "/assets/photos/img_0890.jpeg"
+    },
+    {
+      "size": "normal",
+      "image": "/assets/photos/img_0891.jpeg"
+    },
+    {
+      "size": "normal",
+      "image": "/assets/photos/img_0892.jpeg"
+    }
+  ]
 }
