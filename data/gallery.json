@@ -1,20 +1,3 @@
 {
-  "photos": [
-    {
-      "size": "tall",
-      "image": "/assets/photos/img_0889.jpeg"
-    },
-    {
-      "size": "tall",
-      "image": "/assets/photos/img_0890.jpeg"
-    },
-    {
-      "size": "tall",
-      "image": "/assets/photos/img_0891.jpeg"
-    },
-    {
-      "size": "tall",
-      "image": "/assets/photos/img_0892.jpeg"
-    }
-  ]
+  "photos": []
 }
