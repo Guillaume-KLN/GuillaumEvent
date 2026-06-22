@@ -139,12 +139,16 @@
   const showImage = (index) => {
     currentIndex = (index + galleryItems.length) % galleryItems.length;
     const item = galleryItems[currentIndex];
-    const placeholder = item.querySelector('.gallery__placeholder');
     const caption = item.getAttribute('data-caption') || '';
-    if (placeholder) {
-      const bg = getComputedStyle(placeholder).backgroundImage;
+    const dataImg = item.getAttribute('data-img');
+    const placeholder = item.querySelector('.gallery__placeholder');
+    let bg = '';
+    if (dataImg) bg = "url('" + dataImg + "')";
+    else if (placeholder) bg = getComputedStyle(placeholder).backgroundImage;
+    if (bg) {
       lbImage.style.backgroundImage = bg;
-      lbImage.style.backgroundSize = 'cover';
+      lbImage.style.backgroundSize = 'contain';
+      lbImage.style.backgroundRepeat = 'no-repeat';
       lbImage.style.backgroundPosition = 'center';
     }
     lbCaption.textContent = caption;
@@ -183,13 +187,13 @@
       .then((data) => {
         const photos = Array.isArray(data) ? data : (data && data.photos) || [];
         if (!photos.length) return;
-        const sizeClass = { wide: ' gallery__item--wide', tall: ' gallery__item--tall' };
+        // Mode mosaïque auto : chaque photo garde ses proportions (pas de rognage)
+        grid.classList.add('gallery--masonry');
         grid.innerHTML = photos.map((p) => {
-          const cls = sizeClass[p.size] || '';
           const cap = String(p.caption || '').replace(/"/g, '&quot;');
           const src = String(p.image || '');
-          return '<button class="gallery__item' + cls + '" role="listitem" data-caption="' + cap + '">' +
-                   '<span class="gallery__placeholder" style="background-image:url(\'' + src + '\');background-size:cover;background-position:center"></span>' +
+          return '<button class="gallery__item" role="listitem" data-caption="' + cap + '" data-img="' + src + '">' +
+                   '<img class="gallery__photo" src="' + src + '" alt="' + cap + '" loading="lazy">' +
                    '<span class="gallery__hint">Voir</span>' +
                  '</button>';
         }).join('');
