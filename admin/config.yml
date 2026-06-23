@@ -8,7 +8,7 @@ backend:
   repo: guillaume-KLN/GuillaumEvent   # ton dépôt GitHub
   branch: main
   # base_url = adresse de ton site en ligne (sert à l'authentification)
-  base_url: https://dj-gv.netlify.app
+  base_url: https://guillaumevent.fr
   auth_endpoint: /.netlify/functions/auth
 
 # Langue de l'interface d'admin

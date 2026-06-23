@@ -22,14 +22,14 @@ Site **statique pur** : HTML / CSS / JS, sans framework ni build.
 ## 🚀 Déploiement (déjà en place)
 
 - Hébergé sur **Netlify**, déploiement **automatique** depuis le dépôt GitHub **guillaume-KLN/GuillaumEvent** (branche `main`).
-- En ligne sur **https://dj-gv.fr** (domaine OVH, DNS Netlify, HTTPS automatique).
+- En ligne sur **https://guillaumevent.fr** (domaine OVH, DNS Netlify, HTTPS automatique).
 - Aucun build : Netlify publie la racine du dépôt (`publish = "."`).
 
 ➡️ **Pour mettre à jour** : on modifie les fichiers, on les renvoie sur GitHub (Add file → Upload files), Netlify redéploie tout seul en ~1 min.
 
 ## ✍️ Gérer le contenu soi-même
 
-Via l'admin **https://dj-gv.fr/admin/** (login GitHub) :
+Via l'admin **https://guillaumevent.fr/admin/** (login GitHub) :
 - **Galerie photos**, **Visuels du site** (portrait + matériel), **Partenaires** (par catégorie).
 - Voir `SETUP-ADMIN.md` pour le détail.
 

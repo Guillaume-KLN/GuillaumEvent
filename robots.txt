@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /merci.html
 
-Sitemap: https://dj-gv.fr/sitemap.xml
+Sitemap: https://guillaumevent.fr/sitemap.xml
