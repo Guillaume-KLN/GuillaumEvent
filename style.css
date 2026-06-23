@@ -11,15 +11,15 @@
   --gold:        #9c7a26;   /* doré profond, lisible sur beige */
   --gold-soft:   #b89233;   /* doré plus clair pour survols/dégradés */
   --gold-deep:   #7c5e1d;
-  --olive:       #5c6a37;   /* vert olive (couleur dominante) */
-  --olive-deep:  #3b4622;   /* olive très foncé */
-  --cream:       #2f3622;   /* TEXTE principal (olive quasi noir) */
-  --cream-dim:   #5f6347;   /* texte secondaire / atténué */
-  --bg:          #efe6d1;   /* beige chaud (fond principal) */
-  --bg-2:        #e7dcc1;   /* beige plus soutenu (bandeaux) */
-  --bg-3:        #f6efdf;   /* beige clair (surfaces de cartes) */
-  --line:        rgba(92, 106, 55, 0.34);   /* liseré olive */
-  --line-soft:   rgba(59, 70, 34, 0.16);     /* liseré olive discret */
+  --olive:       #48592c;   /* vert bouteille profond (logo GuillaumEvent) */
+  --olive-deep:  #2c3719;   /* vert très foncé */
+  --cream:       #2b3320;   /* TEXTE principal (vert quasi noir) */
+  --cream-dim:   #5a5f44;   /* texte secondaire / atténué */
+  --bg:          #f1ead9;   /* crème chaud (fond principal) */
+  --bg-2:        #e8dec5;   /* crème plus soutenu (bandeaux) */
+  --bg-3:        #f8f1e2;   /* crème clair (surfaces de cartes) */
+  --line:        rgba(72, 89, 44, 0.34);    /* liseré vert */
+  --line-soft:   rgba(44, 55, 25, 0.15);     /* liseré vert discret */
 
   /* Typographie */
   --font-serif:  'Cormorant Garamond', Georgia, 'Times New Roman', serif;
@@ -212,16 +212,18 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 .header__inner { display: flex; align-items: center; justify-content: space-between; }
 
 /* Logo */
-.brand { display: inline-flex; align-items: center; gap: 0.35rem; line-height: 1; }
-.brand__logo { height: 64px; width: auto; display: block; }
-.brand__script { font-family: var(--font-script); font-size: 1.75rem; color: var(--gold); }
-.brand__mark {
+.brand { display: inline-flex; align-items: center; gap: 0.6rem; line-height: 1; }
+.brand__logo { height: 54px; width: auto; display: block; }
+/* Nom à côté du médaillon dans l'en-tête */
+.brand__name {
   font-family: var(--font-serif);
   font-weight: 600;
-  font-size: 1.4rem;
-  letter-spacing: 0.06em;
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
   color: var(--cream);
+  white-space: nowrap;
 }
+.brand__name strong { font-weight: 600; }
 
 /* Menu */
 .nav__menu { display: flex; align-items: center; gap: 2rem; }
@@ -318,10 +320,10 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 /* Logo emblème dans le hero, posé sur un médaillon lumineux discret
    pour garantir la lisibilité du « DJ » foncé sur fond sombre. */
 .hero__logo {
-  width: clamp(230px, 38vw, 360px);
+  width: clamp(290px, 50vw, 500px);
   height: auto;
   margin: 0 auto;
-  filter: drop-shadow(0 12px 28px rgba(59, 70, 34, 0.32));
+  filter: drop-shadow(0 14px 30px rgba(44, 55, 25, 0.28));
   animation: logoFloat 6s ease-in-out infinite;
 }
 @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -812,7 +814,7 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 ========================================================== */
 .footer { border-top: 1px solid var(--line-soft); padding-block: clamp(3rem, 6vw, 4.5rem); background: var(--bg-2); }
 .footer__inner { display: grid; gap: 1.25rem; justify-items: center; text-align: center; }
-.brand--footer .brand__logo { height: 96px; }
+.brand--footer .brand__logo { height: 132px; }
 .brand--footer .brand__script { font-size: 2rem; }
 .footer__tag { color: var(--cream-dim); font-size: 0.9rem; letter-spacing: 0.08em; }
 .footer__nav { display: flex; flex-wrap: wrap; gap: 1.5rem; }
@@ -855,6 +857,13 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 /* Navigation mobile */
 @media (max-width: 859px) {
   .nav__toggle { display: block; }
+  .brand__logo { height: 48px; }
+  .brand__name { font-size: 1.2rem; }
+}
+@media (max-width: 400px) {
+  .brand__name { display: none; }   /* médaillon seul si écran très étroit */
+}
+@media (max-width: 859px) {
   .nav__menu {
     position: fixed; inset: 0 0 0 auto;
     width: min(80vw, 320px);
