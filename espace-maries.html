@@ -83,7 +83,6 @@
     /* Timeline éditable (cartes) */
     .toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
     .tl-item { display: flex; gap: 0.9rem; margin-bottom: 1rem; align-items: stretch; }
-    .tl-item.dragging { opacity: 0.45; } .tl-item.drop-target .tl-card { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary) inset; }
     .tl-time { flex: none; width: 96px; display: flex; align-items: center; }
     .tl-time input { width: 100%; font-family: var(--font-serif); font-weight: 600; font-size: 0.98rem; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 0.4rem 0.3rem; color: var(--color-text); font-variant-numeric: tabular-nums; }
     .tl-time input::-webkit-calendar-picker-indicator { opacity: 0.4; padding: 0; margin-left: 0.15rem; cursor: pointer; }
@@ -94,8 +93,7 @@
     .tl-card .moment { font-family: var(--font-serif); font-weight: 600; font-size: 1.02rem; }
     .tl-card .music { font-size: 0.85rem; color: var(--color-text-dim); }
     .tl-row2 { display: flex; align-items: center; gap: 0.3rem; }
-    .tl-handle { align-self: center; cursor: grab; color: var(--color-text-dim); user-select: none; font-size: 1.15rem; padding: 0 0.2rem; flex: none; }
-    .tl-handle:active { cursor: grabbing; }
+    .tl-handle { align-self: center; color: var(--ge-gold-soft); user-select: none; font-size: 0.7rem; padding: 0 0.2rem; flex: none; }
     .tl-del { background: none; border: none; color: var(--color-text-dim); font-size: 1.1rem; cursor: pointer; margin-left: auto; }
     .tl-del:hover { color: #a3402f; }
 
@@ -186,7 +184,7 @@
     <!-- DÉROULÉ -->
     <section class="view" id="v-timeline">
       <h2 class="section-h">Le déroulé</h2>
-      <p class="section-sub">Votre soirée, minute par minute. Glissez pour réordonner, cliquez pour modifier.</p>
+      <p class="section-sub">Votre soirée, minute par minute. Renseignez les horaires : les moments se rangent tout seuls dans l'ordre.</p>
       <div class="toolbar">
         <button class="btn btn--gold btn--small" id="tlAdd">+ Ajouter un moment</button>
         <button class="btn btn--ghost btn--small" id="tlPrint">Imprimer</button>
@@ -456,15 +454,33 @@
   /* ---- Timeline ---- */
   const tlList = $('tlList');
   function rowHTML(it) {
-    return `<div class="tl-item" draggable="false" data-id="${it.id}">
-      <span class="tl-handle" title="Glisser pour déplacer">⠿</span>
+    return `<div class="tl-item" data-id="${it.id}">
+      <span class="tl-handle" aria-hidden="true">◆</span>
       <div class="tl-time"><input type="time" value="${it.heure||''}" data-f="heure" aria-label="Heure"></div>
       <div class="tl-card">
         <input class="moment" value="${esc(it.moment)}" data-f="moment" placeholder="Moment">
         <div class="tl-row2"><input class="music" value="${esc(it.musique)}" data-f="musique" placeholder="Musique / artiste"><button class="tl-del" title="Supprimer">×</button></div>
       </div></div>`;
   }
-  function renderTimeline() { tlList.innerHTML = wedding.timeline.map(rowHTML).join(''); }
+  /* Le déroulé se range tout seul par ordre horaire.
+     Subtilité : une soirée déborde sur le lendemain. « 02:00 » doit venir
+     APRÈS « 23:15 », pas en tête. On considère donc que tout ce qui est
+     avant 6 h du matin appartient à la nuit suivante.
+     Les lignes sans horaire restent en bas, en attente d'être renseignées. */
+  function enMinutes(h) {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(h || '').trim());
+    if (!m) return Infinity;
+    const heures = Number(m[1]);
+    return (heures < 6 ? heures + 24 : heures) * 60 + Number(m[2]);
+  }
+  function trierTimeline() {
+    wedding.timeline.sort((a, b) => enMinutes(a.heure) - enMinutes(b.heure));
+  }
+
+  function renderTimeline() {
+    trierTimeline();
+    tlList.innerHTML = wedding.timeline.map(rowHTML).join('');
+  }
   tlList.addEventListener('input', (e) => {
     const i = e.target.closest('input[data-f]'); if (!i) return;
     const it = wedding.timeline.find((x) => x.id === i.closest('.tl-item').dataset.id);
@@ -478,17 +494,18 @@
   });
   $('tlAdd').addEventListener('click', () => { wedding.timeline.push({ id: uid(), heure:'', moment:'', musique:'' }); renderTimeline(); renderProgress(); save(); });
   $('tlPrint').addEventListener('click', () => window.print());
-  let dragId = null;
-  tlList.addEventListener('mousedown', (e) => { const h = e.target.closest('.tl-handle'); if (h) h.closest('.tl-item').setAttribute('draggable','true'); });
-  tlList.addEventListener('dragstart', (e) => { const r = e.target.closest('.tl-item'); if (!r) return; dragId = r.dataset.id; r.classList.add('dragging'); });
-  tlList.addEventListener('dragend', (e) => { const r = e.target.closest('.tl-item'); if (r) { r.classList.remove('dragging'); r.setAttribute('draggable','false'); } tlList.querySelectorAll('.drop-target').forEach((x)=>x.classList.remove('drop-target')); });
-  tlList.addEventListener('dragover', (e) => { e.preventDefault(); const o = e.target.closest('.tl-item'); tlList.querySelectorAll('.drop-target').forEach((x)=>x.classList.remove('drop-target')); if (o && o.dataset.id !== dragId) o.classList.add('drop-target'); });
-  tlList.addEventListener('drop', (e) => {
-    e.preventDefault(); const o = e.target.closest('.tl-item'); if (!o || !dragId) return;
-    const from = wedding.timeline.findIndex((x)=>x.id===dragId), to = wedding.timeline.findIndex((x)=>x.id===o.dataset.id);
-    if (from<0||to<0||from===to) return;
-    const [m] = wedding.timeline.splice(from,1); wedding.timeline.splice(to,0,m);
-    renderTimeline(); save();
+
+  /* Quand un horaire est validé, la ligne se replace d'elle-même au bon endroit.
+     On attend l'événement « change » (et non « input ») pour ne pas réorganiser
+     la liste sous les doigts pendant la saisie. Le curseur est ensuite rendu
+     à la ligne qu'on venait de modifier. */
+  tlList.addEventListener('change', (e) => {
+    const i = e.target.closest('input[data-f="heure"]'); if (!i) return;
+    const id = i.closest('.tl-item').dataset.id;
+    renderTimeline();
+    const champ = tlList.querySelector('.tl-item[data-id="' + id + '"] input[data-f="heure"]');
+    if (champ) champ.focus();
+    save();
   });
 
   /* ---- Playlist en ligne : lecteur intégré Spotify / Deezer / Apple Music ---- */
