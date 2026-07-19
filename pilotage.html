@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pilotage — GuillaumEvent</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/favicon.ico?v=3" sizes="any" />
+  <link rel="stylesheet" href="design-tokens.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    .gate { min-height: 100svh; display: grid; place-items: center; padding: 1.5rem; }
+    .gate__card { width: 100%; max-width: 380px; text-align: center; }
+    .gate__logo { height: 74px; margin: 0 auto 0.75rem; }
+
+    .app { display: none; } .app.is-on { display: block; }
+    .topbar {
+      position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; padding: 0.8rem clamp(1rem, 4vw, 2rem);
+      background: rgba(243,236,216,.9); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar__brand { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--font-serif); font-weight: 600; }
+    .topbar__brand img { height: 32px; }
+    .topbar__brand small { font-family: var(--font-sans); font-weight: 400; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-primary); }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: clamp(1.25rem, 4vw, 2rem); }
+
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; margin-bottom: 1.75rem; }
+    .stat { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow-card); }
+    .stat__n { font-family: var(--font-serif); font-size: 2rem; font-weight: 600; line-height: 1; }
+    .stat__l { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-dim); margin-top: 0.35rem; }
+
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab { padding: 0.55rem 1.2rem; border-radius: var(--radius-pill); border: 1px solid var(--line-soft); background: var(--color-surface); font: inherit; font-size: 0.9rem; color: var(--color-text-dim); cursor: pointer; }
+    .tab.on { border-color: var(--color-primary); color: var(--color-text); background: #fbf7ec; }
+    .panel { display: none; } .panel.on { display: block; }
+
+    .wcard, .lead { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 1.1rem 1.25rem; box-shadow: var(--shadow-card); margin-bottom: 0.9rem; }
+    .wcard__top, .lead__top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1rem; }
+    .wcard__couple, .lead__name { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; }
+    .wcard__date, .lead__meta { color: var(--color-text-dim); font-size: 0.9rem; }
+    .wcard__jours { margin-left: auto; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-primary); }
+    .creds { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--line-soft); font-size: 0.92rem; }
+    .creds b { font-family: monospace; background: var(--ge-cream-deep); padding: 0.15rem 0.5rem; border-radius: 6px; }
+    .wactions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+
+    .lead__total { margin-left: auto; font-family: var(--font-serif); font-weight: 600; font-size: 1.15rem; color: var(--color-primary); }
+    .lead__grid { display: grid; gap: 0.2rem; margin-top: 0.5rem; font-size: 0.9rem; color: var(--color-text-dim); }
+    .lead__grid a { color: var(--color-primary); }
+    .lead__foot { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--line-soft); }
+    .lead__foot select { padding: 0.4rem 0.6rem; border-radius: 8px; border: 1px solid var(--line); background: var(--ge-white); font: inherit; font-size: 0.85rem; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 0 1.25rem; }
+    @media (min-width: 620px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+    .empty { text-align: center; color: var(--color-text-dim); padding: 2rem 1rem; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ge-green); color: #fff; padding: 0.7rem 1.25rem; border-radius: 100px; font-size: 0.88rem; opacity: 0; pointer-events: none; transition: .3s; z-index: 60; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .err { color: #a3402f; font-size: .85rem; margin-top: .7rem; }
+
+    /* ---- Atelier de préparation du devis ---- */
+    .prep { position: fixed; inset: 0; z-index: 60; background: rgba(30,38,20,.55);
+            display: none; padding: clamp(.5rem, 2vw, 2rem); overflow: auto; }
+    .prep.on { display: block; }
+    .prep__box { max-width: 1180px; margin: 0 auto; background: var(--ge-cream);
+                 border-radius: var(--radius); box-shadow: var(--shadow-card-hover); overflow: hidden; }
+    .prep__head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+                  padding: 1rem 1.25rem; background: var(--ge-green-deep); color: var(--ge-cream-light); }
+    .prep__head h2 { font-family: var(--font-serif); font-size: 1.25rem; margin: 0; flex: 1; color: #fff; }
+    .prep__body { display: grid; grid-template-columns: 340px 1fr; gap: 0; align-items: start; }
+    @media (max-width: 900px) { .prep__body { grid-template-columns: 1fr; } }
+    .prep__form { padding: 1.25rem; border-right: 1px solid var(--line); }
+    .prep__form h3 { font-size: .72rem; text-transform: uppercase; letter-spacing: .13em;
+                     color: var(--ge-gold-deep); margin: 1.25rem 0 .6rem; }
+    .prep__form h3:first-child { margin-top: 0; }
+    .prep__row { display: flex; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+    .prep__row input[type=text] { flex: 1; min-width: 0; }
+    .prep__row input[type=number] { width: 88px; flex: none; }
+    .prep__form input, .prep__form select, .prep__form textarea {
+      padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 8px;
+      background: var(--ge-white); font: inherit; font-size: .9rem; width: 100%; }
+    .prep__x { background: none; border: 1px solid rgba(255,255,255,.35); color: inherit;
+               width: 28px; height: 28px; border-radius: 6px; cursor: pointer; flex: none; }
+    .prep__form .prep__x { border-color: var(--line); color: var(--color-text-dim); }
+    .prep__apercu { background: #6d7a58; padding: 1rem; min-height: 60vh; }
+    .prep__apercu iframe { width: 100%; height: 78vh; border: 0; border-radius: var(--radius-sm); background: #fff; }
+    .prep__foot { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center;
+                  padding: 1rem 1.25rem; border-top: 1px solid var(--line); background: var(--ge-cream-light); }
+    .prep__note { font-size: .82rem; color: var(--color-text-dim); flex: 1; min-width: 200px; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ CONNEXION ADMIN ============ -->
+  <section class="gate" id="gate">
+    <div class="gate__card">
+      <img class="gate__logo" src="assets/logo-icon.png?v=3" alt="GuillaumEvent" />
+      <p class="eyebrow">Espace professionnel</p>
+      <h1 class="h1" style="font-size:clamp(1.8rem,6vw,2.3rem)">Pilotage</h1>
+      <p class="lead" style="margin:0.5rem auto 1.3rem">Vos mariages et vos demandes de devis.</p>
+      <form id="gateForm" class="card" style="text-align:left">
+        <div class="field"><label for="mail">E-mail</label><input id="mail" type="email" autocomplete="username" required /></div>
+        <div class="field" style="margin-bottom:1.25rem"><label for="pass">Mot de passe</label><input id="pass" type="password" autocomplete="current-password" required /></div>
+        <button type="submit" class="btn btn--gold btn--block" id="gateBtn">Se connecter</button>
+        <p id="gateErr" class="err" style="display:none"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ APPLICATION ============ -->
+  <div class="app" id="app">
+    <header class="topbar">
+      <span class="topbar__brand"><img src="assets/logo-icon.png?v=3" alt="" />GuillaumEvent <small>Pilotage</small></span>
+      <button class="btn btn--ghost btn--small" id="logout">Se déconnecter</button>
+    </header>
+
+    <div class="wrap">
+      <div class="stats">
+        <div class="stat"><div class="stat__n" id="sMariages">–</div><div class="stat__l">Mariages</div></div>
+        <div class="stat"><div class="stat__n" id="sProchain">–</div><div class="stat__l">Prochain</div></div>
+        <div class="stat"><div class="stat__n" id="sDevis">–</div><div class="stat__l">Devis à traiter</div></div>
+      </div>
+
+      <nav class="tabs">
+        <button class="tab on" data-p="mariages">Mariages &amp; accès</button>
+        <button class="tab" data-p="devis">Demandes de devis</button>
+        <button class="tab" data-p="clients">Portefeuille clients</button>
+      </nav>
+
+      <!-- ---- MARIAGES ---- -->
+      <section class="panel on" id="p-mariages">
+        <div class="card" style="margin-bottom:1.5rem">
+          <h2 class="h3" style="margin-bottom:1rem">Créer un mariage</h2>
+          <div class="form-grid">
+            <div class="field"><label for="nCouple">Noms des mariés *</label><input id="nCouple" placeholder="Camille &amp; Thomas" /></div>
+            <div class="field"><label for="nDate">Date du mariage</label><input id="nDate" type="date" /></div>
+            <div class="field"><label for="nLieu">Lieu</label><input id="nLieu" placeholder="Domaine, château…" /></div>
+            <div class="field"><label for="nContact">Téléphone / e-mail</label><input id="nContact" placeholder="06… ou email" /></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label for="nCode">Code mariage</label><input id="nCode" placeholder="Généré automatiquement" /></div>
+            <div class="field"><label for="nPass">Mot de passe</label><input id="nPass" placeholder="Généré automatiquement" /></div>
+          </div>
+          <button class="btn btn--gold" id="createW">Créer le mariage</button>
+          <p id="createErr" class="err" style="display:none"></p>
+        </div>
+
+        <h2 class="h3" style="margin-bottom:0.9rem">Mariages enregistrés</h2>
+        <div id="wList"><div class="empty">Chargement…</div></div>
+      </section>
+
+      <!-- ---- DEVIS ---- -->
+      <section class="panel" id="p-devis">
+        <h2 class="h3" style="margin-bottom:0.9rem">Demandes reçues</h2>
+        <div id="lList"><div class="empty">Chargement…</div></div>
+      </section>
+
+      <!-- ---- PORTEFEUILLE CLIENTS ---- -->
+      <section class="panel" id="p-clients">
+        <h2 class="h3" style="margin-bottom:0.4rem">Portefeuille clients</h2>
+        <p style="color:var(--color-text-dim); font-size:0.9rem; margin-bottom:1.2rem">
+          Vos clients regroupés par e-mail, à partir des demandes reçues. Ceux qui reviennent sont marqués
+          <b>fidèle</b> — pensez à leur remise 😉
+        </p>
+        <div class="card" style="margin-bottom:1.5rem">
+          <h3 class="h3" style="margin-bottom:0.9rem">Ajouter un client</h3>
+          <div class="form-grid">
+            <div class="field"><label for="cNom">Nom</label><input id="cNom" placeholder="Sophie &amp; Julien" /></div>
+            <div class="field"><label for="cEmail">E-mail</label><input id="cEmail" type="email" placeholder="client@exemple.fr" /></div>
+            <div class="field"><label for="cTel">Téléphone</label><input id="cTel" placeholder="06 00 00 00 00" /></div>
+            <div class="field"><label for="cRemise">Remise (%)</label><input id="cRemise" type="number" min="0" max="100" value="0" /></div>
+          </div>
+          <div class="field"><label for="cNotes">Notes</label><input id="cNotes" placeholder="Rencontré au salon du mariage, ami de…" /></div>
+          <button class="btn btn--gold" id="addClient">Ajouter au portefeuille</button>
+          <p id="clientErr" class="err" style="display:none"></p>
+        </div>
+
+        <div id="cList"><div class="empty">Chargement…</div></div>
+      </section>
+    </div>
+    <div class="toast" id="toast">✓</div>
+  </div>
+
+  <!-- ============ ATELIER : PRÉPARER ET ENVOYER LE DEVIS ============ -->
+  <div class="prep" id="prep">
+    <div class="prep__box">
+
+      <div class="prep__head">
+        <h2 id="prepTitre">Préparer le devis</h2>
+        <button class="prep__x" id="prepClose" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="prep__body">
+        <div class="prep__form">
+          <h3>Événement</h3>
+          <div class="prep__row"><input type="date" id="pDate" /></div>
+          <div class="prep__row"><input type="text" id="pVille" placeholder="Lieu / commune" /></div>
+
+          <h3>Prestation</h3>
+          <div class="prep__row">
+            <input type="text" id="pTypeLabel" readonly style="background:var(--ge-cream-light)" />
+            <input type="number" id="pBase" min="0" step="10" />
+          </div>
+
+          <h3>Options</h3>
+          <div id="pOptions"></div>
+          <button class="btn btn--ghost btn--small" id="pAddOpt" style="margin-top:.4rem">+ Ajouter une option</button>
+
+          <h3>Déplacement</h3>
+          <div class="prep__row">
+            <input type="number" id="pKm" min="0" step="1" style="width:88px;flex:none" />
+            <span style="font-size:.85rem;color:var(--color-text-dim)">km</span>
+            <input type="number" id="pDepl" min="0" step="1" />
+          </div>
+          <div style="font-size:.78rem;color:var(--color-text-dim)">40 km offerts, puis 0,50 €/km — modifiable.</div>
+
+          <h3>Remise</h3>
+          <div class="prep__row">
+            <input type="number" id="pRemise" min="0" max="100" step="1" style="width:88px;flex:none" />
+            <span style="font-size:.85rem;color:var(--color-text-dim)">% <span id="pRemiseInfo"></span></span>
+          </div>
+
+          <h3>Message dans l'e-mail
+            <button class="btn btn--ghost btn--small" id="pMotReset" type="button"
+                    style="float:right;margin-top:-.3rem;font-size:.72rem;text-transform:none;letter-spacing:0">
+              Texte générique</button>
+          </h3>
+          <textarea id="pMot" rows="9"></textarea>
+          <div style="font-size:.78rem;color:var(--color-text-dim);margin-top:.35rem">
+            Le « Bonjour » avec le prénom, le détail chiffré et la signature
+            sont ajoutés automatiquement autour de ce texte.
+          </div>
+        </div>
+
+        <div class="prep__apercu">
+          <iframe id="prepFrame" title="Aperçu du devis" src="about:blank"></iframe>
+        </div>
+      </div>
+
+      <div class="prep__foot">
+        <span class="prep__note" id="prepNote">Rien n'est envoyé tant que vous n'avez pas cliqué sur « Envoyer ».</span>
+        <button class="btn btn--ghost" id="prepAnnuler">Annuler</button>
+        <button class="btn btn--gold" id="prepEnvoyer">✉️ Envoyer le devis</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  /* =======================================================================
+     PILOTAGE — connecté à la base de données
+     ======================================================================= */
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[<>"]/g, (c) => ({ '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  const SITE = location.origin;
+  let mariages = [], devis = [];
+
+  /* ---------------- Connexion (Supabase Auth) ---------------- */
+  $('gateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('gateBtn'); btn.disabled = true; btn.textContent = 'Connexion…';
+    $('gateErr').style.display = 'none';
+    const { error } = await sb.auth.signInWithPassword({ email: $('mail').value.trim(), password: $('pass').value });
+    btn.disabled = false; btn.textContent = 'Se connecter';
+    if (error) { $('gateErr').textContent = 'Connexion refusée : ' + error.message; $('gateErr').style.display = 'block'; return; }
+    await ouvrir();
+  });
+
+  $('logout').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    $('app').classList.remove('is-on'); $('gate').style.display = 'grid'; $('pass').value = '';
+  });
+
+  async function ouvrir() {
+    // Vérifie que ce compte a bien les droits administrateur
+    const { data: admin } = await sb.rpc('est_admin');
+    if (!admin) {
+      $('gateErr').textContent = "Ce compte n'a pas les droits administrateur.";
+      $('gateErr').style.display = 'block';
+      await sb.auth.signOut();
+      return;
+    }
+    $('gate').style.display = 'none'; $('app').classList.add('is-on');
+    await Promise.all([chargerMariages(), chargerDevis()]);
+    await chargerClients();   // après les devis (le portefeuille en dépend)
+  }
+
+  // Reprise automatique de session
+  (async () => { const { data } = await sb.auth.getSession(); if (data.session) await ouvrir(); })();
+
+  /* ---------------- Onglets ---------------- */
+  document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach((x) => x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+    t.classList.add('on'); $('p-' + t.dataset.p).classList.add('on');
+  }));
+
+  /* ---------------- Génération code / mot de passe ---------------- */
+  const MOTS = ['soleil','lavande','olive','provence','cigale','mistral','festif','etoile','oliveraie','garrigue'];
+  const slug = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toUpperCase().replace(/&/g, ' ').replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24);
+  const genCode = (c) => 'MARIAGE-' + (slug(c) || 'SANS-NOM');
+  const genPass = () => MOTS[Math.floor(Math.random() * MOTS.length)] + Math.floor(10 + Math.random() * 90);
+  $('nCouple').addEventListener('input', () => {
+    if (!$('nCode').dataset.touched) $('nCode').value = genCode($('nCouple').value);
+    // mot de passe proposé une seule fois (on ne le change pas à chaque frappe)
+    if (!$('nPass').dataset.touched && !$('nPass').value) $('nPass').value = genPass();
+  });
+  $('nCode').addEventListener('input', () => { $('nCode').dataset.touched = '1'; });
+  $('nPass').addEventListener('input', () => { $('nPass').dataset.touched = '1'; });
+
+  /* ---------------- Mariages ---------------- */
+  async function chargerMariages() {
+    const { data, error } = await sb.from('mariages').select('*').order('date_evenement', { ascending: true });
+    if (error) { $('wList').innerHTML = `<div class="empty">Erreur : ${esc(error.message)}</div>`; return; }
+    mariages = data || []; rendreMariages(); majStats();
+  }
+
+  const joursAvant = (d) => d ? Math.ceil((new Date(d + 'T00:00:00') - new Date()) / 86400000) : null;
+
+  function rendreMariages() {
+    if (!mariages.length) { $('wList').innerHTML = `<div class="empty">Aucun mariage — créez le premier ci-dessus.</div>`; return; }
+    $('wList').innerHTML = mariages.map((w) => {
+      const j = joursAvant(w.date_evenement);
+      const d = w.date_evenement ? new Date(w.date_evenement + 'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) : 'date à définir';
+      return `<div class="wcard">
+        <div class="wcard__top">
+          <span class="wcard__couple">${esc(w.couple)}</span>
+          <span class="wcard__date">${d}${w.lieu ? ' · ' + esc(w.lieu) : ''}</span>
+          ${j !== null && j >= 0 ? `<span class="wcard__jours">dans ${j} j</span>` : ''}
+        </div>
+        ${w.contact ? `<div class="wcard__date" style="margin-top:.3rem">${esc(w.contact)}</div>` : ''}
+        <div class="creds">
+          <span>Code : <b>${esc(w.code)}</b></span>
+          <span>Mot de passe : <b>${esc(w.mot_de_passe)}</b></span>
+        </div>
+        <div class="wactions">
+          <button class="btn btn--gold btn--small" data-copy="${w.id}">Copier le message aux mariés</button>
+          <button class="btn btn--ghost btn--small" data-newpass="${w.id}">Nouveau mot de passe</button>
+          <button class="btn btn--ghost btn--small" data-delw="${w.id}">Supprimer</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  $('createW').addEventListener('click', async () => {
+    const couple = $('nCouple').value.trim();
+    $('createErr').style.display = 'none';
+    if (!couple) { $('createErr').textContent = 'Indiquez au moins les noms des mariés.'; $('createErr').style.display = 'block'; return; }
+    const ligne = {
+      couple,
+      date_evenement: $('nDate').value || null,
+      lieu: $('nLieu').value.trim() || null,
+      contact: $('nContact').value.trim() || null,
+      code: ($('nCode').value.trim() || genCode(couple)).toUpperCase(),
+      mot_de_passe: $('nPass').value.trim() || genPass()
+    };
+    const { error } = await sb.from('mariages').insert(ligne);
+    if (error) {
+      $('createErr').textContent = error.message.includes('duplicate')
+        ? 'Ce code mariage existe déjà — modifiez-le.' : 'Erreur : ' + error.message;
+      $('createErr').style.display = 'block'; return;
+    }
+    ['nCouple','nDate','nLieu','nContact','nCode','nPass'].forEach((i) => { $(i).value = ''; });
+    delete $('nCode').dataset.touched; delete $('nPass').dataset.touched;
+    await chargerMariages(); toast('Mariage créé ✓');
+  });
+
+  $('wList').addEventListener('click', async (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const id = b.dataset.copy || b.dataset.newpass || b.dataset.delw;
+    const w = mariages.find((x) => x.id === id); if (!w) return;
+
+    if (b.dataset.copy) {
+      const msg =
+`Bonjour ${w.couple},
+
+J'ai le plaisir de vous ouvrir votre espace mariés personnel.
+
+Vous y retrouverez le déroulé de votre soirée, votre playlist collaborative et votre brief — modifiables à tout moment, et que je consulte de mon côté en direct.
+
+Votre accès :
+${SITE}/espace-maries.html
+Code mariage : ${w.code}
+Mot de passe : ${w.mot_de_passe}
+
+Astuce : depuis votre téléphone, ajoutez la page à votre écran d'accueil pour y accéder comme à une application.
+
+Je reste à votre entière disposition pour toute question.
+
+Musicalement,
+
+GuillaumEvent
+Votre événement sur mesure en Provence
+06 61 07 98 24 — contact@guillaumevent.fr`;
+      navigator.clipboard.writeText(msg).then(() => toast('Message copié ✓')).catch(() => prompt('Copiez ce message :', msg));
+    }
+    if (b.dataset.newpass) {
+      const np = genPass();
+      const { error } = await sb.from('mariages').update({ mot_de_passe: np }).eq('id', id);
+      if (error) return toast('Erreur : ' + error.message);
+      await chargerMariages(); toast('Nouveau mot de passe ✓');
+    }
+    if (b.dataset.delw) {
+      if (!confirm('Supprimer le mariage de ' + w.couple + ' ?\nSon espace ne sera plus accessible.')) return;
+      const { error } = await sb.from('mariages').delete().eq('id', id);
+      if (error) return toast('Erreur : ' + error.message);
+      await chargerMariages(); toast('Supprimé');
+    }
+  });
+
+  /* ---------------- Demandes de devis (CRM) ---------------- */
+  const STATUTS = ['nouveau', 'contacté', 'devis envoyé', 'signé', 'perdu'];
+
+  async function chargerDevis() {
+    const { data, error } = await sb.from('devis').select('*').order('created_at', { ascending: false });
+    if (error) { $('lList').innerHTML = `<div class="empty">Erreur : ${esc(error.message)}</div>`; return; }
+    devis = data || []; rendreDevis(); majStats();
+  }
+
+  function rendreDevis() {
+    if (!devis.length) { $('lList').innerHTML = `<div class="empty">Aucune demande pour l'instant.</div>`; return; }
+    $('lList').innerHTML = devis.map((d) => {
+      const recu = new Date(d.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
+      const dateEv = d.date_evenement ? new Date(d.date_evenement + 'T00:00:00').toLocaleDateString('fr-FR') : '—';
+      const opts = Array.isArray(d.options) && d.options.length ? d.options.map((o) => esc(o.label)).join(', ') : 'aucune';
+
+      // Remise éventuelle du client (fiche du portefeuille)
+      const fiche = fiches.find((f) => {
+        const em = String(f.email || '').trim().toLowerCase();
+        const tl = telNorm(f.telephone);
+        return (em && em === String(d.email || '').trim().toLowerCase())
+            || (tl && telNorm(d.telephone) && tl === telNorm(d.telephone));
+      });
+      const remise = fiche && fiche.remise > 0 ? fiche.remise : 0;
+      const totalRemise = (remise && d.total != null) ? Math.round(d.total * (1 - remise / 100)) : null;
+
+      const bloc = d.total == null
+        ? 'Sur devis'
+        : (totalRemise != null
+            ? `<span style="text-decoration:line-through;opacity:.5;font-size:.85em">${d.total.toLocaleString('fr-FR')} €</span> ${totalRemise.toLocaleString('fr-FR')} €`
+            : d.total.toLocaleString('fr-FR') + ' €');
+
+      return `<div class="lead">
+        <div class="lead__top">
+          <span class="lead__name">${esc(d.prenom || 'Sans nom')}</span>
+          ${remise ? `<span class="badge">★ Fidèle · −${remise}%</span>` : ''}
+          <span class="lead__meta">${esc(d.type_evenement || '')} · reçu le ${recu}</span>
+          <span class="lead__total">${bloc}</span>
+        </div>
+        <div class="lead__grid">
+          <span>📧 <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>${d.telephone ? ' · 📞 <a href="tel:' + esc(d.telephone) + '">' + esc(d.telephone) + '</a>' : ''}</span>
+          <span>📅 ${dateEv}${d.ville ? ' · 📍 ' + esc(d.ville) + (d.distance_km ? ' (' + d.distance_km + ' km)' : '') : ''}</span>
+          <span>🎁 Options : ${opts}${d.deplacement ? ' · déplacement ' + d.deplacement + ' €' : ''}</span>
+          ${d.message ? `<span>💬 ${esc(d.message)}</span>` : ''}
+        </div>
+        <div class="lead__foot">
+          <select data-statut="${d.id}">
+            ${STATUTS.map((s) => `<option value="${s}" ${d.statut === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          <button class="btn btn--gold btn--small" data-prep="${d.id}">✉️ Préparer le devis</button>
+          ${d.envoye_le ? `<span class="lead__meta">envoyé le ${new Date(d.envoye_le).toLocaleDateString('fr-FR')}</span>` : ''}
+          <button class="btn btn--ghost btn--small" data-deld="${d.id}">Supprimer</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  $('lList').addEventListener('change', async (e) => {
+    const s = e.target.closest('select[data-statut]'); if (!s) return;
+    const { error } = await sb.from('devis').update({ statut: s.value }).eq('id', s.dataset.statut);
+    if (error) return toast('Erreur : ' + error.message);
+    const d = devis.find((x) => x.id === s.dataset.statut); if (d) d.statut = s.value;
+    majStats(); toast('Statut mis à jour ✓');
+  });
+
+  $('lList').addEventListener('click', async (e) => {
+    const p = e.target.closest('button[data-prep]');
+    if (p) { ouvrirPrep(p.dataset.prep); return; }
+    const b = e.target.closest('button[data-deld]'); if (!b) return;
+    if (!confirm('Supprimer cette demande ?')) return;
+    const { error } = await sb.from('devis').delete().eq('id', b.dataset.deld);
+    if (error) return toast('Erreur : ' + error.message);
+    await chargerDevis(); toast('Supprimée');
+  });
+
+  /* ---------------- Portefeuille clients ---------------- */
+  let fiches = [];   // fiches enregistrées (notes, remise)
+
+  async function chargerClients() {
+    const { data, error } = await sb.from('clients').select('*');
+    if (error) { $('cList').innerHTML = `<div class="empty">Table « clients » absente — exécutez le SQL fourni.<br><small>${esc(error.message)}</small></div>`; return; }
+    fiches = data || [];
+    rendreClients();
+    rendreDevis();   // réaffiche les devis pour y appliquer les remises
+  }
+
+  /* Le portefeuille ne contient QUE de vrais clients (prestation signée ou
+     ajout manuel). Les demandes de devis servent uniquement à enrichir leur
+     historique — elles n'y créent jamais de fiche toutes seules. */
+
+  // Normalise un numéro pour la comparaison : 06 12.34-56 78 / +33 6 12… -> 0612345678
+  const telNorm = (t) => String(t || '').replace(/[^0-9]/g, '').replace(/^33/, '0');
+
+  function portefeuille() {
+    return fiches.map((f) => {
+      const em = String(f.email || '').trim().toLowerCase();
+      const tl = telNorm(f.telephone);
+
+      // Un devis est rattaché au client par l'e-mail OU par le téléphone
+      const evts = devis.filter((d) => {
+        const de = String(d.email || '').trim().toLowerCase();
+        const dt = telNorm(d.telephone);
+        return (em && de === em) || (tl && dt && dt === tl);
+      }).map((d) => ({ date: d.date_evenement, type: d.type_evenement, total: d.total, statut: d.statut, recu: d.created_at }));
+
+      const realises = evts.filter((e) => e.statut === 'signé');
+      const chiffre = realises.reduce((s, e) => s + (typeof e.total === 'number' ? e.total : 0), 0);
+
+      return {
+        id: f.id, email: f.email || '', nom: f.nom || '', telephone: f.telephone || '',
+        notes: f.notes || '', remise: f.remise || 0,
+        evts, realises: realises.length, chiffre
+      };
+    }).sort((a, b) => b.realises - a.realises || b.chiffre - a.chiffre);
+  }
+
+  /* ---- Ajout manuel d'un client ---- */
+  $('addClient').addEventListener('click', async () => {
+    const email = $('cEmail').value.trim().toLowerCase();
+    const tel = $('cTel').value.trim();
+    $('clientErr').style.display = 'none';
+    if (!email && !tel) {
+      $('clientErr').textContent = 'Indiquez au moins un e-mail ou un téléphone (c\'est ce qui identifie le client).';
+      $('clientErr').style.display = 'block'; return;
+    }
+    const ligne = {
+      nom: $('cNom').value.trim() || null, email: email || null, telephone: tel || null,
+      notes: $('cNotes').value.trim() || null, remise: Number($('cRemise').value) || 0
+    };
+    // Avec e-mail : on met à jour si la fiche existe. Sans e-mail : simple ajout.
+    const { error } = email
+      ? await sb.from('clients').upsert(ligne, { onConflict: 'email' })
+      : await sb.from('clients').insert(ligne);
+    if (error) { $('clientErr').textContent = 'Erreur : ' + error.message; $('clientErr').style.display = 'block'; return; }
+    ['cNom','cEmail','cTel','cNotes'].forEach((i) => { $(i).value = ''; }); $('cRemise').value = 0;
+    await chargerClients(); toast('Client ajouté ✓');
+  });
+
+  function rendreClients() {
+    const liste = portefeuille();
+    if (!liste.length) {
+      $('cList').innerHTML = `<div class="empty">Aucun client pour l'instant.<br>
+        Une fiche se crée quand vous passez une demande en <b>« signé »</b>, ou en ajoutant un client ci-dessus.</div>`;
+      return;
+    }
+    $('cList').innerHTML = liste.map((c) => {
+      const fidele = c.realises > 1;
+      const dernier = c.evts.map((e) => e.recu).sort().slice(-1)[0];
+      const dernierTxt = dernier ? new Date(dernier).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const enCours = c.evts.length - c.realises;
+      return `<div class="lead">
+        <div class="lead__top">
+          <span class="lead__name">${esc(c.nom || c.email || c.telephone)}</span>
+          ${fidele ? '<span class="badge">★ Client fidèle</span>' : ''}
+          <span class="lead__meta">${c.realises} prestation${c.realises>1?'s':''} réalisée${c.realises>1?'s':''}${enCours>0 ? ' · '+enCours+' demande'+(enCours>1?'s':'')+' en cours' : ''}${dernier ? ' · dernier contact le '+dernierTxt : ''}</span>
+          <span class="lead__total">${c.chiffre.toLocaleString('fr-FR')} €</span>
+        </div>
+        <div class="lead__grid">
+          <span>${c.email ? '📧 <a href="mailto:'+esc(c.email)+'">'+esc(c.email)+'</a>' : ''}${c.email && c.telephone ? ' · ' : ''}${c.telephone ? '📞 <a href="tel:'+esc(c.telephone)+'">'+esc(c.telephone)+'</a>' : ''}</span>
+          ${c.evts.length ? `<span>🗓️ ${c.evts.map((e) => esc(e.type || 'Événement') + (e.date ? ' (' + new Date(e.date+'T00:00:00').toLocaleDateString('fr-FR') + ')' : '') + (e.statut === 'signé' ? ' ✓' : '')).join(' · ')}</span>` : ''}
+        </div>
+        <div class="lead__foot">
+          <label style="font-size:.85rem;color:var(--color-text-dim)">Remise&nbsp;
+            <input type="number" min="0" max="100" value="${c.remise}" data-remise="${c.id}"
+                   style="width:70px;padding:.35rem .5rem;border:1px solid var(--line);border-radius:8px;background:var(--ge-white);font:inherit"> %
+          </label>
+          <input type="text" placeholder="Notes (préférences, historique…)" value="${esc(c.notes)}" data-notes="${c.id}"
+                 style="flex:1;min-width:180px;padding:.4rem .6rem;border:1px solid var(--line);border-radius:8px;background:var(--ge-white);font:inherit;font-size:.88rem">
+          <button class="btn btn--gold btn--small" data-savec="${c.id}">Enregistrer</button>
+          <button class="btn btn--ghost btn--small" data-delc="${c.id}" data-nom="${esc(c.nom || c.email || c.telephone)}">Supprimer</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  $('cList').addEventListener('click', async (e) => {
+    // Suppression d'une fiche client
+    const d = e.target.closest('button[data-delc]');
+    if (d) {
+      if (!confirm('Supprimer la fiche de ' + d.dataset.nom + " ?\nSes demandes de devis sont conservées.")) return;
+      const { error } = await sb.from('clients').delete().eq('id', d.dataset.delc);
+      if (error) return toast('Erreur : ' + error.message);
+      await chargerClients(); toast('Fiche supprimée');
+      return;
+    }
+    // Enregistrement de la remise et des notes
+    const b = e.target.closest('button[data-savec]'); if (!b) return;
+    const id = b.dataset.savec;
+    const remise = Number(document.querySelector(`[data-remise="${CSS.escape(id)}"]`).value) || 0;
+    const notes = document.querySelector(`[data-notes="${CSS.escape(id)}"]`).value;
+    const { error } = await sb.from('clients').update({ notes, remise }).eq('id', id);
+    if (error) return toast('Erreur : ' + error.message);
+    await chargerClients(); toast('Fiche client enregistrée ✓');
+  });
+
+  /* ---------------- Statistiques ---------------- */
+  function majStats() {
+    $('sMariages').textContent = mariages.length;
+    const futurs = mariages.filter((m) => m.date_evenement && joursAvant(m.date_evenement) >= 0);
+    $('sProchain').textContent = futurs.length ? joursAvant(futurs[0].date_evenement) + ' j' : '—';
+    $('sDevis').textContent = devis.filter((d) => d.statut === 'nouveau').length;
+  }
+
+  /* ---------------- Atelier : préparer et envoyer le devis ----------------
+     L'aperçu est la vraie page devis-client.html chargée dans un cadre :
+     ce que vous voyez est très exactement ce que le client recevra. */
+  const FREE_KM = 40, PRIX_KM = 0.50, ACOMPTE = 0.20;
+  let prepId = null, prepOptions = [], framePrete = false;
+
+  const numeroSuivant = () => {
+    const an = new Date().getFullYear();
+    const n = devis.filter((d) => (d.numero || '').startsWith('GE-' + an)).length + 1;
+    return 'GE-' + an + '-' + String(n).padStart(3, '0');
+  };
+
+  /* Message par défaut, adapté à l'événement. Modifiable avant chaque envoi. */
+  function motGenerique(d) {
+    const dateTxt = d.date_evenement
+      ? ' du ' + new Date(d.date_evenement + 'T00:00:00')
+          .toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '';
+    const evt = {
+      'Mariage': 'votre mariage' + dateTxt,
+      'Événement privé': 'votre événement' + dateTxt,
+      'Événement professionnel': 'votre événement' + dateTxt
+    }[d.type_evenement] || 'votre événement' + dateTxt;
+
+    return `Merci pour votre demande, et pour la confiance que vous m'accordez en pensant à moi pour ${evt}.
+
+Vous trouverez ci-dessous le détail de ma proposition. Elle comprend l'intégralité de la prestation : les rendez-vous de préparation, la sonorisation, les jeux de lumière, l'installation et le démontage. Aucun supplément ne viendra s'y ajouter.
+
+Si un point mérite d'être ajusté, dites-le-moi simplement : ce devis est un point de départ, pas une formule figée. Je reste disponible pour en discuter de vive voix.
+
+Au plaisir d'échanger avec vous,
+Guillaume`;
+  }
+
+  function rendreOptions() {
+    $('pOptions').innerHTML = prepOptions.map((o, i) => `
+      <div class="prep__row">
+        <input type="text" value="${esc(o.label)}" data-optl="${i}" placeholder="Intitulé" />
+        <input type="number" value="${Number(o.price) || 0}" data-optp="${i}" min="0" step="10" />
+        <button class="prep__x" data-optx="${i}" aria-label="Retirer">✕</button>
+      </div>`).join('');
+  }
+
+  /* Construit l'objet devis à partir des champs, et calcule le total. */
+  function prepDonnees() {
+    const d = devis.find((x) => x.id === prepId) || {};
+    const base = Number($('pBase').value) || 0;
+    const depl = Number($('pDepl').value) || 0;
+    const remise = Math.min(100, Math.max(0, Number($('pRemise').value) || 0));
+    const brut = base + prepOptions.reduce((s, o) => s + (Number(o.price) || 0), 0) + depl;
+    return {
+      numero: d.numero || numeroSuivant(),
+      envoye_le: d.envoye_le || new Date().toISOString(),
+      prenom: d.prenom, email: d.email, telephone: d.telephone,
+      type_evenement: d.type_evenement,
+      date_evenement: $('pDate').value || null,
+      ville: $('pVille').value || null,
+      distance_km: Number($('pKm').value) || 0,
+      base, options: prepOptions.map((o) => ({ label: o.label, price: Number(o.price) || 0 })),
+      deplacement: depl, remise,
+      total: Math.round(brut * (1 - remise / 100)),
+      statut: d.statut
+    };
+  }
+
+  function pousser() {
+    if (!framePrete) return;
+    const data = prepDonnees();
+    $('prepFrame').contentWindow.postMessage({ type: 'devis:apercu', devis: data }, location.origin);
+    $('prepNote').textContent = 'Total : ' + data.total.toLocaleString('fr-FR') +
+      ' € · acompte ' + Math.round(data.total * ACOMPTE).toLocaleString('fr-FR') + ' €';
+  }
+
+  window.addEventListener('message', (ev) => {
+    if (ev.origin !== location.origin || !ev.data || ev.data.type !== 'devis:pret') return;
+    framePrete = true; pousser();
+  });
+
+  function ouvrirPrep(id) {
+    const d = devis.find((x) => x.id === id); if (!d) return;
+    prepId = id; framePrete = false;
+
+    const fiche = fiches.find((f) => {
+      const em = String(f.email || '').trim().toLowerCase();
+      const tl = telNorm(f.telephone);
+      return (em && em === String(d.email || '').trim().toLowerCase())
+          || (tl && telNorm(d.telephone) && tl === telNorm(d.telephone));
+    });
+
+    $('prepTitre').textContent = 'Devis pour ' + (d.prenom || 'ce client');
+    $('pDate').value = d.date_evenement || '';
+    $('pVille').value = d.ville || '';
+    $('pTypeLabel').value = d.type_evenement || 'Événement';
+    $('pBase').value = d.base || 0;
+    $('pKm').value = d.distance_km || 0;
+    $('pDepl').value = d.deplacement || 0;
+    $('pRemise').value = (fiche && fiche.remise) || 0;
+    $('pRemiseInfo').textContent = fiche && fiche.remise ? '(client fidèle)' : '';
+    $('pMot').value = motGenerique(d);
+    prepOptions = Array.isArray(d.options) ? d.options.map((o) => ({ label: o.label, price: o.price })) : [];
+    rendreOptions();
+
+    $('prepFrame').src = 'devis-client.html?apercu=1&v=' + Date.now();
+    $('prep').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fermerPrep() {
+    $('prep').classList.remove('on');
+    $('prepFrame').src = 'about:blank';
+    prepId = null; framePrete = false;
+    document.body.style.overflow = '';
+  }
+
+  $('prepClose').addEventListener('click', fermerPrep);
+  $('prepAnnuler').addEventListener('click', fermerPrep);
+  $('prep').addEventListener('click', (e) => { if (e.target === $('prep')) fermerPrep(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && prepId) fermerPrep(); });
+
+  // Le déplacement se recalcule quand on change le kilométrage
+  $('pKm').addEventListener('input', () => {
+    $('pDepl').value = Math.round(Math.max(0, (Number($('pKm').value) || 0) - FREE_KM) * PRIX_KM);
+    pousser();
+  });
+
+  ['pDate','pVille','pBase','pDepl','pRemise'].forEach((id) =>
+    $(id).addEventListener('input', pousser));
+
+  $('pMotReset').addEventListener('click', () => {
+    const d = devis.find((x) => x.id === prepId); if (!d) return;
+    $('pMot').value = motGenerique(d);
+    toast('Texte générique rétabli');
+  });
+
+  $('pAddOpt').addEventListener('click', () => {
+    prepOptions.push({ label: '', price: 0 }); rendreOptions(); pousser();
+  });
+
+  $('pOptions').addEventListener('input', (e) => {
+    const l = e.target.dataset.optl, p = e.target.dataset.optp;
+    if (l !== undefined) prepOptions[l].label = e.target.value;
+    if (p !== undefined) prepOptions[p].price = Number(e.target.value) || 0;
+    pousser();
+  });
+
+  $('pOptions').addEventListener('click', (e) => {
+    const x = e.target.closest('[data-optx]'); if (!x) return;
+    prepOptions.splice(Number(x.dataset.optx), 1); rendreOptions(); pousser();
+  });
+
+  /* ---- Envoi ---- */
+  $('prepEnvoyer').addEventListener('click', async () => {
+    const data = prepDonnees();
+    if (!data.email) return toast('Ce client n\'a pas d\'adresse e-mail.');
+    if (!confirm('Envoyer ce devis de ' + data.total.toLocaleString('fr-FR') + ' € à ' +
+                 data.email + ' ?')) return;
+
+    const b = $('prepEnvoyer');
+    b.disabled = true; b.textContent = 'Envoi en cours…';
+    try {
+      // Jeton de session : la fonction serveur vérifie que c'est bien vous
+      const { data: sess } = await sb.auth.getSession();
+      const jeton = sess && sess.session && sess.session.access_token;
+      if (!jeton) throw new Error('session expirée, reconnectez-vous');
+
+      const r = await fetch('/.netlify/functions/envoyer-devis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jeton },
+        body: JSON.stringify({ id: prepId, devis: data, mot: $('pMot').value })
+      });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || ('Erreur ' + r.status));
+      await chargerDevis();
+      fermerPrep();
+      toast('Devis envoyé à ' + data.email + ' ✓');
+    } catch (err) {
+      b.disabled = false; b.textContent = '✉️ Envoyer le devis';
+      toast('Envoi impossible : ' + err.message);
+    }
+  });
+
+  /* ---------------- Toast ---------------- */
+  const toastEl = $('toast'); let tT;
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(tT); tT = setTimeout(() => toastEl.classList.remove('show'), 1800); }
+  </script>
+</body>
+</html>

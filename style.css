@@ -493,6 +493,57 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 }
 
 /* =========================================================
+   ESPACE MARIÉS — bandeau différenciateur (fond vert profond)
+========================================================== */
+.espace {
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(156, 122, 38, 0.22), transparent 65%),
+    linear-gradient(165deg, var(--olive-deep), #3a4726 55%, #2a3418);
+  position: relative;
+}
+/* Filets dorés en haut et en bas du bandeau */
+.espace::before, .espace::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.55;
+}
+.espace::before { top: 0; } .espace::after { bottom: 0; }
+
+.espace .eyebrow { color: var(--gold-soft); }
+.espace .section__title { color: #f6f0e2; }
+.espace .section__sub { color: rgba(243, 236, 221, 0.78); }
+.espace .section__sub strong { color: #f6f0e2; }
+
+/* Badge « inclus » */
+.espace__badge {
+  display: inline-block; margin-top: 1.25rem;
+  font-size: 0.74rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold-soft); border: 1px solid rgba(201, 168, 75, 0.5);
+  border-radius: 100px; padding: 0.45rem 1.1rem;
+  background: rgba(201, 168, 75, 0.08);
+}
+
+/* Cartes sur fond sombre */
+.espace .card {
+  background: linear-gradient(160deg, rgba(255, 253, 247, 0.07), rgba(255, 253, 247, 0.03));
+  border-color: rgba(243, 236, 221, 0.16);
+  box-shadow: 0 20px 44px -28px rgba(0, 0, 0, 0.7);
+}
+.espace .card:hover { border-color: rgba(201, 168, 75, 0.55); }
+.espace .card__title { color: #f6f0e2; }
+.espace .card__text { color: rgba(243, 236, 221, 0.75); }
+.espace .card__text strong { color: var(--gold-soft); }
+.espace .card__icon {
+  color: var(--gold-soft);
+  border-color: rgba(201, 168, 75, 0.4);
+  background: rgba(201, 168, 75, 0.1);
+}
+
+/* Appel à l'action */
+.espace__cta { text-align: center; margin-top: clamp(2rem, 5vw, 3rem); }
+.espace__cta p { margin-top: 1rem; font-size: 0.88rem; color: rgba(243, 236, 221, 0.7); }
+
+/* =========================================================
    ÉQUIPEMENT
 ========================================================== */
 .equipement { background: linear-gradient(180deg, var(--bg), var(--bg-2)); }

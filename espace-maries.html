@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Espace Mariés — GuillaumEvent</title>
+  <meta name="description" content="Votre espace privé GuillaumEvent : compte à rebours, déroulé, playlist et brief." />
+  <meta name="robots" content="noindex" />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#48592c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Espace Mariés" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=3" />
+  <link rel="icon" href="assets/favicon.ico?v=3" sizes="any" />
+
+  <link rel="stylesheet" href="design-tokens.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    body { background: var(--color-bg); }
+
+    /* ---- Connexion ---- */
+    .login { min-height: 100svh; display: grid; place-items: center; padding: 1.5rem; }
+    .login__card { width: 100%; max-width: 400px; text-align: center; }
+    .login__logo { height: 78px; width: auto; margin: 0 auto 0.75rem; }
+    .login__demo { font-size: 0.8rem; color: var(--color-text-dim); margin-top: 1rem; }
+    .login__demo code { background: var(--ge-cream-deep); padding: 0.1rem 0.4rem; border-radius: 5px; }
+
+    /* ---- App mini-mobile ---- */
+    .app { display: none; }
+    .app.is-on { display: block; }
+    .shell {
+      max-width: 500px; margin: 0 auto; min-height: 100svh; padding-bottom: 84px;
+      background:
+        radial-gradient(circle at 12% -4%, rgba(156,122,38,.10), transparent 42%),
+        radial-gradient(circle at 92% 3%, rgba(72,89,44,.10), transparent 40%);
+    }
+    .appbar { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.25rem 0.4rem; }
+    .appbar__brand { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-serif); font-weight: 600; }
+    .appbar__brand img { height: 30px; }
+    .chip { width: 40px; height: 40px; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--line);
+            display: grid; place-items: center; font-family: var(--font-serif); font-size: 0.85rem; color: var(--color-text-dim); cursor: pointer; }
+
+    .view { display: none; padding: 0 1.25rem 1.25rem; animation: fade .3s ease; }
+    .view.is-active { display: block; }
+    @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    /* Hero + compte à rebours */
+    .hero { text-align: center; padding: 0.75rem 0 0.25rem; }
+    .hero .couple { font-family: var(--font-script); font-size: clamp(2.1rem, 9vw, 2.9rem); color: var(--color-primary); line-height: 1.05; }
+    .hero .date { color: var(--color-text-dim); font-size: 0.95rem; margin-top: 0.35rem; text-transform: capitalize; }
+    .countdown { display: flex; gap: 0.5rem; justify-content: center; margin: 1.4rem 0 0.5rem; }
+    .cd-unit { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: 16px; padding: 0.85rem 0.4rem 0.6rem; width: 76px; box-shadow: var(--shadow-card); }
+    .cd-num { font-family: var(--font-serif); font-size: 1.9rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; color: var(--color-text); }
+    .cd-lbl { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-text-dim); margin-top: 0.4rem; }
+    .cd-sep { align-self: center; color: var(--color-primary); font-size: 1.3rem; opacity: 0.5; }
+    .lieu { margin-top: 1.1rem; text-align: center; color: var(--color-text-dim); font-size: 0.9rem; }
+
+    /* Carte progression */
+    .card2 { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: 18px; padding: 1.1rem; box-shadow: var(--shadow-card); margin-top: 1.4rem; }
+    .pc-title { font-family: var(--font-serif); font-size: 1.1rem; font-weight: 600; }
+    .pc-sub { font-size: 0.85rem; color: var(--color-text-dim); margin: 0.15rem 0 0.85rem; }
+    .track { height: 7px; background: var(--ge-cream-deep); border-radius: 100px; overflow: hidden; }
+    .track-fill { height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--ge-green)); border-radius: 100px; transition: width .4s var(--ease); }
+    .steps { margin-top: 1rem; display: grid; gap: 0.65rem; }
+    .step { display: flex; align-items: center; gap: 0.7rem; font-size: 0.92rem; }
+    .step .ck { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; display: grid; place-items: center; font-size: 0.7rem; color: #fff; }
+    .step.done .ck { background: var(--ge-green); border-color: var(--ge-green); }
+    .step.done .txt { color: var(--color-text-dim); }
+    .step .go { margin-left: auto; font-size: 0.8rem; color: var(--color-primary); font-weight: 600; cursor: pointer; }
+
+    /* Install */
+    .install { background: linear-gradient(135deg, rgba(156,122,38,.12), rgba(72,89,44,.10)); border: 1px solid var(--line-soft);
+               border-radius: 16px; padding: 1rem 1.1rem; margin-top: 1.4rem; }
+    .install b { color: var(--color-text); }
+    .install p { font-size: 0.85rem; color: var(--color-text-dim); margin: 0.15rem 0 0.75rem; }
+
+    .section-h { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; margin-top: 0.5rem; }
+    .section-sub { color: var(--color-text-dim); font-size: 0.9rem; margin: 0.15rem 0 1.1rem; }
+
+    /* Timeline éditable (cartes) */
+    .toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+    .tl-item { display: flex; gap: 0.9rem; margin-bottom: 1rem; align-items: stretch; }
+    .tl-item.dragging { opacity: 0.45; } .tl-item.drop-target .tl-card { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary) inset; }
+    .tl-time { flex: none; width: 96px; display: flex; align-items: center; }
+    .tl-time input { width: 100%; font-family: var(--font-serif); font-weight: 600; font-size: 0.98rem; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 0.4rem 0.3rem; color: var(--color-text); font-variant-numeric: tabular-nums; }
+    .tl-time input::-webkit-calendar-picker-indicator { opacity: 0.4; padding: 0; margin-left: 0.15rem; cursor: pointer; }
+    .tl-time input:focus { outline: none; border-color: var(--color-primary); background: var(--ge-white); }
+    .tl-card { flex: 1; background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: 14px; padding: 0.7rem 0.85rem; box-shadow: var(--shadow-card); border-left: 3px solid var(--color-secondary); display: grid; gap: 0.3rem; }
+    .tl-card input { font: inherit; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 0.3rem 0.4rem; color: var(--color-text); }
+    .tl-card input:focus { outline: none; border-color: var(--color-primary); background: var(--ge-white); }
+    .tl-card .moment { font-family: var(--font-serif); font-weight: 600; font-size: 1.02rem; }
+    .tl-card .music { font-size: 0.85rem; color: var(--color-text-dim); }
+    .tl-row2 { display: flex; align-items: center; gap: 0.3rem; }
+    .tl-handle { align-self: center; cursor: grab; color: var(--color-text-dim); user-select: none; font-size: 1.15rem; padding: 0 0.2rem; flex: none; }
+    .tl-handle:active { cursor: grabbing; }
+    .tl-del { background: none; border: none; color: var(--color-text-dim); font-size: 1.1rem; cursor: pointer; margin-left: auto; }
+    .tl-del:hover { color: #a3402f; }
+
+    /* Playlist */
+    .seg { display: flex; background: var(--ge-cream-deep); border-radius: 12px; padding: 4px; margin-bottom: 1rem; }
+    .seg button { flex: 1; border: none; background: transparent; font: inherit; font-size: 0.85rem; font-weight: 500; padding: 0.5rem; border-radius: 9px; color: var(--color-text-dim); cursor: pointer; transition: .18s; }
+    .seg button.on { background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-sm); }
+    .add-song { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
+    .add-song input { flex: 1; }
+    .add-song button { background: var(--ge-green); color: #fff; border: none; border-radius: 10px; padding: 0 1rem; font-family: var(--font-serif); font-size: 1.3rem; cursor: pointer; }
+    .song { display: flex; align-items: center; gap: 0.6rem; background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: 12px; padding: 0.65rem 0.8rem; margin-bottom: 0.5rem; }
+    .song .num { font-family: var(--font-serif); color: var(--color-primary); width: 18px; text-align: center; flex: none; }
+    .song .t { flex: 1; font-size: 0.95rem; }
+    .song .x { background: none; border: none; color: var(--color-text-dim); cursor: pointer; font-size: 1.1rem; }
+    .song .x:hover { color: #a3402f; }
+    .song.ban { background: rgba(163,64,47,.05); border-color: rgba(163,64,47,.2); }
+    .song.ban .num { color: #a3402f; }
+
+    /* Bottom nav */
+    nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; z-index: 40;
+          background: rgba(243,236,216,.92); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+          border-top: 1px solid var(--line); display: flex; padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom)); }
+    nav button { flex: 1; background: none; border: none; cursor: pointer; padding: 0.35rem 0.15rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: var(--color-text-dim); font: inherit; font-size: 0.66rem; font-weight: 500; }
+    nav button svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.7; fill: none; }
+    nav button.on { color: var(--color-primary); }
+
+    .toast { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ge-green); color: #fff;
+             padding: 0.7rem 1.25rem; border-radius: 100px; font-size: 0.88rem; opacity: 0; pointer-events: none; transition: .3s; z-index: 60; box-shadow: var(--shadow-card-hover); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ============ CONNEXION ============ -->
+  <section class="login" id="loginView">
+    <div class="login__card">
+      <img class="login__logo" src="assets/logo-icon.png?v=3" alt="GuillaumEvent" />
+      <p class="eyebrow">Espace privé</p>
+      <h1 class="h1" style="font-size:clamp(1.9rem,7vw,2.5rem)">Espace Mariés</h1>
+      <p class="lead" style="margin:0.5rem auto 1.4rem">Votre soirée, votre playlist, votre brief — à portée de main.</p>
+      <form id="loginForm" class="card" style="text-align:left">
+        <div class="field"><label for="code">Code mariage</label><input id="code" placeholder="Ex. MARIAGE-DUPONT" autocomplete="username" required /></div>
+        <div class="field" style="margin-bottom:1.25rem"><label for="pass">Mot de passe</label><input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" required /></div>
+        <button type="submit" class="btn btn--gold btn--block">Se connecter</button>
+        <p id="loginError" style="color:#a3402f; font-size:0.85rem; margin-top:0.75rem; display:none">Merci de renseigner le code et le mot de passe.</p>
+      </form>
+      <p class="login__demo">Vos identifiants vous ont été transmis par Guillaume.<br>Un souci pour vous connecter&nbsp;? Contactez-le directement.</p>
+    </div>
+  </section>
+
+  <!-- ============ APPLICATION ============ -->
+  <div class="app" id="appView"><div class="shell">
+    <div class="appbar">
+      <span class="appbar__brand"><img src="assets/logo-icon.png?v=3" alt="" />GuillaumEvent</span>
+      <span class="chip" id="logoutBtn" title="Se déconnecter">⎋</span>
+    </div>
+
+    <!-- ACCUEIL -->
+    <section class="view is-active" id="v-home">
+      <div class="hero">
+        <div class="eyebrow" style="justify-content:center; display:flex">Votre espace mariage</div>
+        <div class="couple" id="coupleName">Vos noms</div>
+        <div class="date" id="weddingDate">Renseignez la date dans « Brief »</div>
+      </div>
+      <div class="countdown">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">—</div><div class="cd-lbl">Jours</div></div>
+        <div class="cd-sep">·</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">—</div><div class="cd-lbl">Heures</div></div>
+        <div class="cd-sep">·</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">—</div><div class="cd-lbl">Min</div></div>
+      </div>
+      <div class="lieu" id="lieuLine"></div>
+
+      <div class="card2">
+        <div class="pc-title">Préparons votre soirée</div>
+        <div class="pc-sub" id="progSub">0 étape sur 4 complétée</div>
+        <div class="track"><div class="track-fill" id="progFill" style="width:0%"></div></div>
+        <div class="steps" id="progSteps"></div>
+      </div>
+
+      <div class="install" id="installCard">
+        <b>📲 Ajoutez l'espace à votre écran d'accueil</b>
+        <p id="installText">Retrouvez votre espace en un geste, comme une vraie appli.</p>
+        <button class="btn btn--gold btn--small" id="installBtn" style="display:none">Installer l'application</button>
+      </div>
+    </section>
+
+    <!-- DÉROULÉ -->
+    <section class="view" id="v-timeline">
+      <h2 class="section-h">Le déroulé</h2>
+      <p class="section-sub">Votre soirée, minute par minute. Glissez pour réordonner, cliquez pour modifier.</p>
+      <div class="toolbar">
+        <button class="btn btn--gold btn--small" id="tlAdd">+ Ajouter un moment</button>
+        <button class="btn btn--ghost btn--small" id="tlPrint">Imprimer</button>
+      </div>
+      <div id="tlList"></div>
+    </section>
+
+    <!-- PLAYLIST -->
+    <section class="view" id="v-playlist">
+      <h2 class="section-h">Votre playlist</h2>
+      <p class="section-sub">Vos incontournables et vos interdits. Guillaume compose le reste autour.</p>
+
+      <div class="card2" style="margin-top:0; margin-bottom:1.2rem">
+        <div class="pc-title" style="font-size:1.02rem">🎧 Votre playlist en ligne</div>
+        <p style="font-size:0.85rem; color:var(--color-text-dim); margin:0.2rem 0 0.75rem">
+          Collez le lien de votre playlist <b>Spotify</b>, <b>Deezer</b> ou <b>Apple Music</b> — elle s'affichera ici et Guillaume pourra l'écouter.
+        </p>
+        <input class="input" id="plLink" placeholder="https://open.spotify.com/playlist/..." />
+        <p style="font-size:0.78rem; color:var(--color-text-dim); margin-top:0.4rem; font-style:italic">
+          ⚠️ La playlist doit être <b>publique</b> pour s'afficher.
+        </p>
+        <div id="plEmbed" style="margin-top:0.85rem"></div>
+      </div>
+
+      <div class="seg">
+        <button class="on" data-list="love">On adore ♥</button>
+        <button data-list="avoid">À éviter</button>
+      </div>
+      <div class="add-song"><input class="input" id="songInput" placeholder="Titre — Artiste" /><button id="songAdd">+</button></div>
+      <div id="songList"></div>
+    </section>
+
+    <!-- BRIEF -->
+    <section class="view" id="v-brief">
+      <h2 class="section-h">Le brief</h2>
+      <p class="section-sub">Les infos pour que tout roule le jour J.</p>
+      <div class="two" style="display:grid; grid-template-columns:1fr 1fr; gap:0 0.75rem">
+        <div class="field"><label>Noms des mariés</label><input data-brief="couple" placeholder="Camille & Thomas" /></div>
+        <div class="field"><label>Date du mariage</label><input type="date" data-brief="date" /></div>
+      </div>
+      <div class="two" style="display:grid; grid-template-columns:1fr 1fr; gap:0 0.75rem">
+        <div class="field"><label>Heure de début</label><input type="time" data-brief="heure" /></div>
+        <div class="field"><label>Nombre d'invités</label><input type="number" min="0" data-brief="invites" placeholder="80" /></div>
+      </div>
+      <div class="field"><label>Lieu de réception</label><input data-brief="lieu" placeholder="Domaine, château, salle…" /></div>
+      <div class="field"><label>Contact témoin le jour J</label><input data-brief="temoin" placeholder="Prénom + téléphone" /></div>
+      <div class="field"><label>Fin de soirée souhaitée</label><input data-brief="fin" placeholder="Ex. 2h" /></div>
+      <div class="field"><label>Styles musicaux préférés</label><input data-brief="style" placeholder="Variété française, disco, pop 80…" /></div>
+      <div class="field"><label>Styles musicaux interdits</label><input data-brief="interdits" placeholder="Techno, métal, rap explicite…" /><div style="font-size:0.78rem;color:var(--color-text-dim);margin-top:0.35rem;font-style:italic">Ce que Guillaume ne passera en aucun cas.</div></div>
+      <div class="field"><label>Surprises prévues ?</label><textarea data-brief="surprises" placeholder="Flash mob, discours, animation des témoins…"></textarea></div>
+      <div class="field"><label>Contraintes du lieu</label><textarea data-brief="contraintes" placeholder="Limite de son, coupure électrique, voisinage…"></textarea></div>
+      <p style="font-size:0.82rem; color:var(--color-text-dim); text-align:center">✓ Enregistré automatiquement — Guillaume voit vos modifications.</p>
+    </section>
+
+    <nav>
+      <button class="on" data-view="home"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/></svg>Accueil</button>
+      <button data-view="timeline"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Déroulé</button>
+      <button data-view="playlist"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303"/></svg>Playlist</button>
+      <button data-view="brief"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664M9.75 3.104c.251.023.501.05.75.082"/></svg>Brief</button>
+    </nav>
+    <div class="toast" id="toast">Enregistré ✓</div>
+  </div></div>
+
+  <script>
+  /* =======================================================================
+     ESPACE MARIÉS — Phase 1 (interface + données locales). Prêt pour Supabase.
+     ======================================================================= */
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+
+  /* Déroulé type proposé aux mariés à leur première connexion.
+     Ils n'ont plus qu'à ajuster les horaires et les musiques. */
+  const DEROULE_TYPE = [
+    { heure: '18:30', moment: "Vin d'honneur",        musique: 'Ambiance jazzy & lounge' },
+    { heure: '20:00', moment: 'Entrée des mariés',    musique: '' },
+    { heure: '20:15', moment: 'Dîner',                musique: 'Playlist douce' },
+    { heure: '22:00', moment: 'Discours & animations', musique: '' },
+    { heure: '22:45', moment: 'Découpe du gâteau',    musique: '' },
+    { heure: '23:00', moment: 'Ouverture de bal',     musique: 'Votre première danse' },
+    { heure: '23:15', moment: 'Soirée dansante',      musique: 'Vos incontournables' },
+    { heure: '02:00', moment: 'Fin de soirée',        musique: 'Dernier slow' }
+  ];
+
+  // Installe le déroulé type si le mariage n'en a pas encore
+  function seederDeroule() {
+    if (wedding && (!wedding.timeline || wedding.timeline.length === 0)) {
+      wedding.timeline = DEROULE_TYPE.map((r) => ({ id: uid(), ...r }));
+      save();
+    }
+  }
+
+  let session = null, wedding = null, currentPl = 'love';
+  const wKey = (c) => 'ge_wedding_' + String(c).toUpperCase();   // cache local (hors-ligne)
+
+  function blankWedding() {
+    return { brief:{couple:'',date:'',heure:'15:00',invites:'',lieu:'',temoin:'',fin:'',style:'',interdits:'',surprises:'',contraintes:''}, timeline:[], playlist:{love:[],avoid:[],link:''} };
+  }
+  function normaliser(w) {
+    const base = blankWedding();
+    return {
+      brief: Object.assign(base.brief, w.brief || {}),
+      timeline: (w.timeline || []).map((r) => ({ id: r.id || uid(), ...r })),
+      playlist: Object.assign(base.playlist, w.playlist || {})
+    };
+  }
+
+  /* ---- Enregistrement : cache local immédiat + base de données ---- */
+  let tSave = null;
+  function save() {
+    if (!session) return;
+    localStorage.setItem(wKey(session.code), JSON.stringify(wedding));   // hors-ligne
+    clearTimeout(tSave);
+    tSave = setTimeout(enregistrerEnBase, 700);                          // groupé
+  }
+  async function enregistrerEnBase() {
+    if (!sb || !session) return;
+    try {
+      const { data, error } = await sb.rpc('maj_mariage', {
+        p_code: session.code, p_pass: session.pass,
+        p_brief: wedding.brief, p_timeline: wedding.timeline, p_playlist: wedding.playlist
+      });
+      if (error) { toast('Hors-ligne — enregistré sur l\'appareil'); return; }
+      if (data === true) toast('Enregistré ✓');
+    } catch (e) { toast('Hors-ligne — enregistré sur l\'appareil'); }
+  }
+
+  /* ---- Connexion : code mariage + mot de passe (vérifiés en base) ---- */
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = $('code').value.trim(), pass = $('pass').value;
+    const err = $('loginError');
+    err.style.display = 'none';
+    if (!code || !pass) { err.textContent = 'Merci de renseigner le code et le mot de passe.'; err.style.display = 'block'; return; }
+
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; const lib = btn.textContent; btn.textContent = 'Connexion…';
+
+    let ok = false;
+    if (sb) {
+      try {
+        const { data, error } = await sb.rpc('acces_mariage', { p_code: code, p_pass: pass });
+        if (!error && data && data.length) {
+          const row = data[0];
+          wedding = normaliser(row);
+          // Pré-remplissage depuis la fiche créée par Guillaume
+          if (!wedding.brief.couple && row.couple) wedding.brief.couple = row.couple;
+          if (!wedding.brief.date && row.date_evenement) wedding.brief.date = row.date_evenement;
+          if (!wedding.brief.lieu && row.lieu) wedding.brief.lieu = row.lieu;
+          ok = true;
+        }
+      } catch (e2) { /* réseau indisponible : on tente le cache */ }
+    }
+    // Repli hors-ligne : espace déjà ouvert sur cet appareil
+    if (!ok) {
+      const cache = localStorage.getItem(wKey(code));
+      if (cache) { try { wedding = normaliser(JSON.parse(cache)); ok = true; toast('Mode hors-ligne'); } catch (e3) {} }
+    }
+
+    btn.disabled = false; btn.textContent = lib;
+    if (!ok) { err.textContent = 'Code ou mot de passe incorrect.'; err.style.display = 'block'; return; }
+
+    session = { code, pass };
+    localStorage.setItem('ge_session', JSON.stringify(session));
+    seederDeroule();                       // déroulé type à la première connexion
+    $('loginView').style.display = 'none'; $('appView').classList.add('is-on');
+    hydrate();
+  });
+
+  $('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('ge_session'); session = null; wedding = null;
+    $('appView').classList.remove('is-on'); $('loginView').style.display = 'grid';
+    $('code').value = ''; $('pass').value = '';
+  });
+
+  /* ---- Reprise de session (recharge les données à jour) ---- */
+  async function reprendreSession() {
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem('ge_session')); } catch (e) {}
+    if (!s || !s.code || !s.pass) return;
+    let w = null;
+    if (sb) {
+      try {
+        const { data, error } = await sb.rpc('acces_mariage', { p_code: s.code, p_pass: s.pass });
+        if (!error && data && data.length) {
+          const row = data[0];
+          w = normaliser(row);
+          if (!w.brief.couple && row.couple) w.brief.couple = row.couple;
+          if (!w.brief.date && row.date_evenement) w.brief.date = row.date_evenement;
+          if (!w.brief.lieu && row.lieu) w.brief.lieu = row.lieu;
+        }
+      } catch (e) {}
+    }
+    if (!w) { const c = localStorage.getItem(wKey(s.code)); if (c) { try { w = normaliser(JSON.parse(c)); } catch (e) {} } }
+    if (!w) return;
+    session = s; wedding = w;
+    seederDeroule();
+    $('loginView').style.display = 'none'; $('appView').classList.add('is-on');
+    hydrate();
+  }
+
+  /* ---- Navigation ---- */
+  document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => go(b.dataset.view)));
+  function go(name) {
+    document.querySelectorAll('.view').forEach((v) => v.classList.toggle('is-active', v.id === 'v-' + name));
+    document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('on', b.dataset.view === name));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---- Hydrate ---- */
+  function hydrate() {
+    document.querySelectorAll('[data-brief]').forEach((el) => { el.value = wedding.brief[el.dataset.brief] || ''; });
+    $('plLink').value = wedding.playlist.link || '';
+    renderTimeline(); renderSongs(); renderEmbed(); renderCountdown(); renderProgress();
+  }
+
+  /* ---- Compte à rebours J/H/M ---- */
+  function targetDate() {
+    if (!wedding.brief.date) return null;
+    return new Date(wedding.brief.date + 'T' + (wedding.brief.heure || '15:00') + ':00');
+  }
+  function renderCountdown() {
+    $('coupleName').textContent = wedding.brief.couple || 'Vos noms';
+    const t = targetDate();
+    if (!t) { $('weddingDate').textContent = 'Renseignez la date dans « Brief »'; ['cd-d','cd-h','cd-m'].forEach((i)=>$(i).textContent='—'); $('lieuLine').textContent=''; return; }
+    $('weddingDate').textContent = t.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const bits = [wedding.brief.lieu, wedding.brief.invites ? wedding.brief.invites + ' invités' : ''].filter(Boolean);
+    $('lieuLine').textContent = bits.join(' · ');
+    const diff = t - new Date();
+    if (diff <= 0) { $('cd-d').textContent='♥'; $('cd-h').textContent='♥'; $('cd-m').textContent='♥'; return; }
+    $('cd-d').textContent = Math.floor(diff / 864e5);
+    $('cd-h').textContent = String(Math.floor(diff % 864e5 / 36e5)).padStart(2, '0');
+    $('cd-m').textContent = String(Math.floor(diff % 36e5 / 6e4)).padStart(2, '0');
+  }
+  setInterval(() => { if (wedding) renderCountdown(); }, 30000);
+
+  /* ---- Progression ---- */
+  // Champs du brief réellement indispensables (les libres — interdits, surprises,
+  // contraintes — peuvent légitimement rester vides, ils ne bloquent pas la validation).
+  const BRIEF_REQUIS = ['couple', 'date', 'heure', 'lieu', 'invites', 'temoin', 'fin', 'style'];
+
+  function renderProgress() {
+    const remplis = BRIEF_REQUIS.filter((k) => String(wedding.brief[k] || '').trim()).length;
+    const hasOpening = wedding.timeline.some((x) => /ouverture|première danse|1re danse/i.test(x.moment || '') && (x.musique || '').trim());
+    const steps = [
+      { t: 'Déroulé renseigné', done: wedding.timeline.some((x) => String(x.moment || '').trim()), goto: 'timeline' },
+      { t: "Chanson d'ouverture choisie", done: hasOpening, goto: 'timeline' },
+      { t: 'Playlist démarrée', done: wedding.playlist.love.length > 0 || !!String(wedding.playlist.link || '').trim(), goto: 'playlist' },
+      { t: 'Brief complété', done: remplis === BRIEF_REQUIS.length, goto: 'brief', note: remplis + '/' + BRIEF_REQUIS.length }
+    ];
+    const done = steps.filter((s) => s.done).length;
+    $('progSub').textContent = done + ' étape' + (done>1?'s':'') + ' sur ' + steps.length + ' complétée' + (done>1?'s':'');
+    $('progFill').style.width = Math.round(done / steps.length * 100) + '%';
+    $('progSteps').innerHTML = steps.map((s) =>
+      `<div class="step ${s.done?'done':''}"><span class="ck">${s.done?'✓':''}</span><span class="txt">${s.t}</span>${
+        s.done ? '' : `<span class="go" data-goto="${s.goto}">${s.note ? s.note + ' · ' : ''}À faire →</span>`}</div>`).join('');
+    $('progSteps').querySelectorAll('[data-goto]').forEach((g) => g.addEventListener('click', () => go(g.dataset.goto)));
+  }
+
+  /* ---- Brief ---- */
+  document.querySelectorAll('[data-brief]').forEach((el) => el.addEventListener('input', () => {
+    wedding.brief[el.dataset.brief] = el.value;
+    if (['couple','date','heure','lieu','invites'].includes(el.dataset.brief)) renderCountdown();
+    renderProgress(); save();
+  }));
+
+  /* ---- Timeline ---- */
+  const tlList = $('tlList');
+  function rowHTML(it) {
+    return `<div class="tl-item" draggable="false" data-id="${it.id}">
+      <span class="tl-handle" title="Glisser pour déplacer">⠿</span>
+      <div class="tl-time"><input type="time" value="${it.heure||''}" data-f="heure" aria-label="Heure"></div>
+      <div class="tl-card">
+        <input class="moment" value="${esc(it.moment)}" data-f="moment" placeholder="Moment">
+        <div class="tl-row2"><input class="music" value="${esc(it.musique)}" data-f="musique" placeholder="Musique / artiste"><button class="tl-del" title="Supprimer">×</button></div>
+      </div></div>`;
+  }
+  function renderTimeline() { tlList.innerHTML = wedding.timeline.map(rowHTML).join(''); }
+  tlList.addEventListener('input', (e) => {
+    const i = e.target.closest('input[data-f]'); if (!i) return;
+    const it = wedding.timeline.find((x) => x.id === i.closest('.tl-item').dataset.id);
+    if (it) { it[i.dataset.f] = i.value; renderProgress(); renderCountdown(); save(); }
+  });
+  tlList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('tl-del')) {
+      wedding.timeline = wedding.timeline.filter((x) => x.id !== e.target.closest('.tl-item').dataset.id);
+      renderTimeline(); renderProgress(); save();
+    }
+  });
+  $('tlAdd').addEventListener('click', () => { wedding.timeline.push({ id: uid(), heure:'', moment:'', musique:'' }); renderTimeline(); renderProgress(); save(); });
+  $('tlPrint').addEventListener('click', () => window.print());
+  let dragId = null;
+  tlList.addEventListener('mousedown', (e) => { const h = e.target.closest('.tl-handle'); if (h) h.closest('.tl-item').setAttribute('draggable','true'); });
+  tlList.addEventListener('dragstart', (e) => { const r = e.target.closest('.tl-item'); if (!r) return; dragId = r.dataset.id; r.classList.add('dragging'); });
+  tlList.addEventListener('dragend', (e) => { const r = e.target.closest('.tl-item'); if (r) { r.classList.remove('dragging'); r.setAttribute('draggable','false'); } tlList.querySelectorAll('.drop-target').forEach((x)=>x.classList.remove('drop-target')); });
+  tlList.addEventListener('dragover', (e) => { e.preventDefault(); const o = e.target.closest('.tl-item'); tlList.querySelectorAll('.drop-target').forEach((x)=>x.classList.remove('drop-target')); if (o && o.dataset.id !== dragId) o.classList.add('drop-target'); });
+  tlList.addEventListener('drop', (e) => {
+    e.preventDefault(); const o = e.target.closest('.tl-item'); if (!o || !dragId) return;
+    const from = wedding.timeline.findIndex((x)=>x.id===dragId), to = wedding.timeline.findIndex((x)=>x.id===o.dataset.id);
+    if (from<0||to<0||from===to) return;
+    const [m] = wedding.timeline.splice(from,1); wedding.timeline.splice(to,0,m);
+    renderTimeline(); save();
+  });
+
+  /* ---- Playlist en ligne : lecteur intégré Spotify / Deezer / Apple Music ---- */
+  function embedFor(url) {
+    if (!url) return null;
+    let u; try { u = new URL(url.trim()); } catch (e) { return null; }
+    const host = u.hostname.replace('www.', '');
+    if (host.includes('spotify.com')) {
+      const m = u.pathname.match(/\/(playlist|album|track)\/([A-Za-z0-9]+)/);
+      if (m) return { src: 'https://open.spotify.com/embed/' + m[1] + '/' + m[2], h: 420, name: 'Spotify' };
+    }
+    if (host.includes('deezer.com')) {
+      const m = u.pathname.match(/\/(playlist|album)\/(\d+)/);
+      if (m) return { src: 'https://widget.deezer.com/widget/auto/' + m[1] + '/' + m[2], h: 400, name: 'Deezer' };
+    }
+    if (host.includes('music.apple.com')) {
+      return { src: url.trim().replace('music.apple.com', 'embed.music.apple.com'), h: 450, name: 'Apple Music' };
+    }
+    return null;
+  }
+  function renderEmbed() {
+    const box = $('plEmbed'); const link = (wedding.playlist.link || '').trim();
+    if (!link) { box.innerHTML = ''; return; }
+    const e = embedFor(link);
+    box.innerHTML = e
+      ? `<iframe src="${e.src}" width="100%" height="${e.h}" style="border:0;border-radius:12px"
+           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+         <p style="font-size:0.78rem;color:var(--color-text-dim);margin-top:0.4rem">Playlist ${e.name} · <a class="link-gold" href="${esc(link)}" target="_blank" rel="noopener">ouvrir</a></p>`
+      : `<p style="font-size:0.85rem;color:#a3402f">Lien non reconnu — collez un lien de playlist Spotify, Deezer ou Apple Music.</p>`;
+  }
+  $('plLink').addEventListener('input', () => { wedding.playlist.link = $('plLink').value; renderEmbed(); renderProgress(); save(); });
+
+  /* ---- Playlist ---- */
+  function renderSongs() {
+    const arr = wedding.playlist[currentPl] || [];
+    $('songList').innerHTML = arr.map((t, i) =>
+      `<div class="song ${currentPl==='avoid'?'ban':''}"><span class="num">${i+1}</span><span class="t">${esc(t)}</span><button class="x" data-i="${i}" title="Retirer">×</button></div>`).join('')
+      || `<p style="color:var(--color-text-dim); font-size:0.85rem">Aucun titre pour l'instant.</p>`;
+  }
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('.seg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
+    currentPl = b.dataset.list; renderSongs();
+  }));
+  function addSong() { const v = $('songInput').value.trim(); if (!v) return; wedding.playlist[currentPl].unshift(v); $('songInput').value=''; renderSongs(); renderProgress(); save(); }
+  $('songAdd').addEventListener('click', addSong);
+  $('songInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addSong(); } });
+  $('songList').addEventListener('click', (e) => { const b = e.target.closest('.x'); if (!b) return; wedding.playlist[currentPl].splice(Number(b.dataset.i),1); renderSongs(); renderProgress(); save(); });
+
+  /* ---- Toast ---- */
+  const toastEl = $('toast'); let toastT;
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 1600); }
+
+  /* ---- Reprise de session ---- */
+  reprendreSession();
+
+  /* ---- PWA : installation ---- */
+  let deferred = null;
+  const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; $('installBtn').style.display = 'inline-flex'; });
+  $('installBtn').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $('installBtn').style.display = 'none'; });
+  if (isiOS) $('installText').innerHTML = "Sur iPhone : appuyez sur <b>Partager</b> puis <b>« Sur l'écran d'accueil »</b>.";
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  </script>
+</body>
+</html>

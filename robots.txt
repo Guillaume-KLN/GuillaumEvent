@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
+
+# Pages privées / techniques — non indexées
 Disallow: /admin/
+Disallow: /pilotage.html
+Disallow: /espace-maries.html
+Disallow: /devis.html
 Disallow: /merci.html
 
 Sitemap: https://guillaumevent.fr/sitemap.xml
