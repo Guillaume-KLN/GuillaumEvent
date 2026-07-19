@@ -212,7 +212,7 @@
             <span style="font-size:.85rem;color:var(--color-text-dim)">km</span>
             <input type="number" id="pDepl" min="0" step="1" />
           </div>
-          <div style="font-size:.78rem;color:var(--color-text-dim)">40 km offerts, puis 0,50 €/km — modifiable.</div>
+          <div style="font-size:.78rem;color:var(--color-text-dim)">40 km offerts, puis 0,50 €/km en aller-retour — modifiable.</div>
 
           <h3>Remise</h3>
           <div class="prep__row">
@@ -452,6 +452,9 @@ Votre événement sur mesure en Provence
           <span>📅 ${dateEv}${d.ville ? ' · 📍 ' + esc(d.ville) + (d.distance_km ? ' (' + d.distance_km + ' km)' : '') : ''}</span>
           <span>🎁 Options : ${opts}${d.deplacement ? ' · déplacement ' + d.deplacement + ' €' : ''}</span>
           ${d.message ? `<span>💬 ${esc(d.message)}</span>` : ''}
+          ${d.accepte_le ? `<span style="color:var(--ge-gold-deep)">✍️ Accepté par le client le
+            ${new Date(d.accepte_le).toLocaleString('fr-FR', { dateStyle:'long', timeStyle:'short' })}${
+            d.accepte_ip ? ' — depuis l\'adresse ' + esc(d.accepte_ip) : ''}</span>` : ''}
         </div>
         <div class="lead__foot">
           <select data-statut="${d.id}">
@@ -729,8 +732,9 @@ Guillaume`;
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && prepId) fermerPrep(); });
 
   // Le déplacement se recalcule quand on change le kilométrage
+  // Déplacement facturé en aller-retour : les km au-delà des 40 offerts comptent double
   $('pKm').addEventListener('input', () => {
-    $('pDepl').value = Math.round(Math.max(0, (Number($('pKm').value) || 0) - FREE_KM) * PRIX_KM);
+    $('pDepl').value = Math.round(Math.max(0, (Number($('pKm').value) || 0) - FREE_KM) * PRIX_KM * 2);
     pousser();
   });
 

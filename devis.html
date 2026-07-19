@@ -175,7 +175,7 @@
           <section class="card">
             <span class="badge">Déplacement</span>
             <p style="color:var(--color-text-dim); font-size:0.92rem; margin:0.75rem 0 1rem">
-              40 km autour de <strong>Monteux</strong> offerts, puis 0,50 €/km au-delà (aller simple).
+              40 km autour de <strong>Monteux</strong> offerts, puis 0,50 €/km au-delà, comptés en aller-retour.
             </p>
             <div class="form-grid">
               <div class="field">
@@ -196,7 +196,7 @@
                 <input id="km" name="distance_km" type="number" min="0" step="1" inputmode="numeric" placeholder="0" />
               </div>
             </div>
-            <p style="font-size:0.8rem; color:var(--color-text-dim)">La distance se pré-remplit pour les villes connues — ajustez-la si besoin.</p>
+            <p style="font-size:0.8rem; color:var(--color-text-dim)">Commencez à taper le nom de votre commune : la distance se calcule automatiquement. Il s'agit d'une estimation, que je confirme lors de l'établissement du devis.</p>
           </section>
         </div>
 
@@ -275,11 +275,56 @@
     origin: 'Monteux'
   };
 
+  /* Villes vérifiées à la main : distance routière réelle, prioritaire. */
   const DISTANCES = {
     'monteux': 0, 'carpentras': 8, 'pernes-les-fontaines': 8, "l'isle-sur-la-sorgue": 14,
     'avignon': 22, 'orange': 24, 'cavaillon': 26, 'vaison-la-romaine': 30,
     'apt': 45, 'pertuis': 55, 'nimes': 55, 'arles': 55, 'aix-en-provence': 75, 'marseille': 100
   };
+
+  /* Pour TOUTES les autres communes, on interroge la Base Adresse Nationale
+     (service public, gratuit, sans clé) et on estime la distance routière
+     à partir des coordonnées. Le champ reste modifiable à la main. */
+  const MONTEUX = { lat: 44.0364, lon: 4.9989 };
+  const FACTEUR_ROUTE = 1.15;   // la route est plus longue que le vol d'oiseau
+
+  function distanceDepuisMonteux(lat, lon) {
+    const R = 6371, rad = Math.PI / 180;
+    const dLat = (lat - MONTEUX.lat) * rad, dLon = (lon - MONTEUX.lon) * rad;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(MONTEUX.lat * rad) * Math.cos(lat * rad) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+
+  const communes = new Map();   // "avignon (84000)" -> { lat, lon }
+  let minuteur;
+
+  function chercherCommunes(q) {
+    clearTimeout(minuteur);
+    if (q.trim().length < 2) return;
+    minuteur = setTimeout(async () => {
+      try {
+        const r = await fetch('https://api-adresse.data.gouv.fr/search/?type=municipality&limit=8&q='
+                              + encodeURIComponent(q));
+        if (!r.ok) return;
+        const j = await r.json();
+        const dl = document.getElementById('villes');
+        dl.innerHTML = '';
+        (j.features || []).forEach((f) => {
+          const p = f.properties;
+          const nom = p.city || p.name;
+          if (!nom) return;
+          const libelle = p.postcode ? nom + ' (' + p.postcode + ')' : nom;
+          communes.set(norm(libelle), { lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] });
+          const o = document.createElement('option');
+          o.value = libelle;
+          dl.appendChild(o);
+        });
+      } catch (e) {
+        /* Hors ligne ou service indisponible : la saisie manuelle reste possible. */
+      }
+    }, 250);
+  }
 
   const euro = (n) => n.toLocaleString('fr-FR') + ' €';
   const norm = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -293,17 +338,32 @@
   const isPro = () => getType() === 'Événement professionnel';
 
   villeInput.addEventListener('input', () => {
-    const d = DISTANCES[norm(villeInput.value)];
-    if (d !== undefined) { kmInput.value = d; recompute(); }
+    const v = norm(villeInput.value);
+    const sansCP = v.replace(/\s*\(\d{4,5}\)\s*$/, '');   // « avignon (84000) » -> « avignon »
+
+    // 1) Ville connue : distance routière exacte
+    if (DISTANCES[sansCP] !== undefined) { kmInput.value = DISTANCES[sansCP]; recompute(); return; }
+
+    // 2) Commune choisie dans la liste : distance estimée d'après ses coordonnées
+    const c = communes.get(v);
+    if (c) {
+      kmInput.value = Math.round(distanceDepuisMonteux(c.lat, c.lon) * FACTEUR_ROUTE);
+      recompute(); return;
+    }
+
+    // 3) Sinon on propose des communes correspondant à la saisie
+    chercherCommunes(villeInput.value);
   });
 
   function getSelectedOptions() {
     return Array.from(form.querySelectorAll('input[type="checkbox"][data-price]:checked'))
       .map((el) => ({ key: el.name, label: el.closest('.opt').querySelector('.opt__title').textContent, price: Number(el.dataset.price) }));
   }
+  /* Le déplacement se facture en aller-retour : les kilomètres au-delà des
+     40 offerts sont comptés deux fois (trajet aller + trajet retour). */
   function computeTravel() {
     const km = Math.max(0, Number(kmInput.value) || 0);
-    return { km, cost: Math.round(Math.max(0, km - CONFIG.freeKm) * CONFIG.pricePerKm) };
+    return { km, cost: Math.round(Math.max(0, km - CONFIG.freeKm) * CONFIG.pricePerKm * 2) };
   }
 
   /* Données prêtes pour un futur insert Supabase (table "devis"). */
@@ -356,7 +416,7 @@
 
     const lines = ['<div class="line"><span>Formule ' + type + '</span><span>' + euro(data.base) + '</span></div>'];
     data.options.forEach((o) => lines.push('<div class="line"><span>' + o.label + '</span><span>+' + euro(o.price) + '</span></div>'));
-    if (data.deplacement > 0) lines.push('<div class="line"><span>Déplacement (' + data.distance_km + ' km)</span><span>+' + euro(data.deplacement) + '</span></div>');
+    if (data.deplacement > 0) lines.push('<div class="line"><span>Déplacement (' + data.distance_km + ' km, aller-retour)</span><span>+' + euro(data.deplacement) + '</span></div>');
     else if (data.ville) lines.push('<div class="line"><span>Déplacement (' + data.distance_km + ' km)</span><span>Offert</span></div>');
     lines.push('<div class="line line--total"><span>Total estimé</span><span>' + euro(data.total) + '</span></div>');
     $('recapLines').innerHTML = lines.join('');
@@ -364,7 +424,7 @@
     $('totalField').value = data.total;
     $('recapField').value = 'Formule ' + type + ' ' + euro(data.base) +
       data.options.map((o) => ' | ' + o.label + ' +' + euro(o.price)).join('') +
-      (data.deplacement > 0 ? ' | Déplacement ' + data.distance_km + 'km +' + euro(data.deplacement) : '') +
+      (data.deplacement > 0 ? ' | Déplacement ' + data.distance_km + 'km A/R +' + euro(data.deplacement) : '') +
       ' | TOTAL ' + euro(data.total);
   }
 
