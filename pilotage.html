@@ -24,6 +24,10 @@
     .topbar__brand { display: inline-flex; align-items: center; gap: 0.55rem; font-family: var(--font-serif); font-weight: 600; }
     .topbar__brand img { height: 32px; }
     .topbar__brand small { font-family: var(--font-sans); font-weight: 400; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-primary); }
+    .topbar__actions { display: inline-flex; align-items: center; gap: 0.9rem; }
+    .topbar__lien { font-size: 0.82rem; color: var(--color-text-dim); border-bottom: 1px solid transparent; white-space: nowrap; transition: 0.18s; }
+    .topbar__lien:hover { color: var(--color-primary); border-bottom-color: currentColor; }
+    @media (max-width: 520px) { .topbar__lien { display: none; } }
     .wrap { max-width: 1000px; margin: 0 auto; padding: clamp(1.25rem, 4vw, 2rem); }
 
     .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; margin-bottom: 1.75rem; }
@@ -111,7 +115,11 @@
   <div class="app" id="app">
     <header class="topbar">
       <span class="topbar__brand"><img src="assets/logo-icon.png?v=3" alt="" />GuillaumEvent <small>Pilotage</small></span>
-      <button class="btn btn--ghost btn--small" id="logout">Se déconnecter</button>
+      <span class="topbar__actions">
+        <a class="topbar__lien" href="marque.html" target="_blank" rel="noopener"
+           title="À transmettre aux graphistes et imprimeurs">Charte de marque ↗</a>
+        <button class="btn btn--ghost btn--small" id="logout">Se déconnecter</button>
+      </span>
     </header>
 
     <div class="wrap">
@@ -125,6 +133,7 @@
         <button class="tab on" data-p="mariages">Mariages &amp; accès</button>
         <button class="tab" data-p="devis">Demandes de devis</button>
         <button class="tab" data-p="clients">Portefeuille clients</button>
+        <button class="tab" data-p="visuels">Visuels réseaux</button>
       </nav>
 
       <!-- ---- MARIAGES ---- -->
@@ -176,6 +185,11 @@
         </div>
 
         <div id="cList"><div class="empty">Chargement…</div></div>
+      </section>
+
+      <!-- ---- VISUELS RÉSEAUX SOCIAUX ---- -->
+      <section class="panel" id="p-visuels">
+        <div class="empty">Chargement…</div>
       </section>
     </div>
     <div class="toast" id="toast">✓</div>
@@ -798,5 +812,8 @@ Guillaume`;
   const toastEl = $('toast'); let tT;
   function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(tT); tT = setTimeout(() => toastEl.classList.remove('show'), 1800); }
   </script>
+
+  <!-- Onglet « Visuels réseaux » (générateur d'images pour Instagram / Facebook) -->
+  <script src="visuels-reseaux.js"></script>
 </body>
 </html>

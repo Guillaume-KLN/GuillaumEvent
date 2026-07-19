@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Charte de marque — GuillaumEvent</title>
+  <meta name="description" content="Charte de marque GuillaumEvent : logos, couleurs, typographies et règles d'usage." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/favicon.ico?v=3" sizes="any" />
+  <link rel="stylesheet" href="design-tokens.css" />
+  <style>
+    body { background: var(--ge-cream); }
+
+    .bb-top {
+      position: relative; overflow: hidden; text-align: center;
+      padding: clamp(3rem, 8vw, 5.5rem) 1.5rem clamp(2.5rem, 6vw, 4rem);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .bb-top::before, .bb-top::after {
+      content: ''; position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .bb-top::before { width: 620px; height: 620px; top: -280px; left: -180px;
+                      background: radial-gradient(circle, rgba(156,122,38,.18), transparent 68%); }
+    .bb-top::after  { width: 560px; height: 560px; bottom: -300px; right: -160px;
+                      background: radial-gradient(circle, rgba(72,89,44,.20), transparent 68%); }
+    .bb-top > * { position: relative; }
+    .bb-top img { height: clamp(96px, 16vw, 140px); margin: 0 auto 1.5rem; }
+    .bb-top h1 { font-family: var(--font-serif); font-weight: var(--fw-semibold); font-size: var(--fs-h1); line-height: 1.1; }
+    .bb-top .sig { font-family: var(--font-script); color: var(--color-primary); font-size: clamp(1.6rem, 4vw, 2.2rem); margin-top: .2rem; }
+    .bb-top p { max-width: 620px; margin: 1.25rem auto 0; color: var(--color-text-dim); }
+
+    .bb-sec { padding: clamp(2.75rem, 6vw, 4.5rem) 0; border-bottom: 1px solid var(--line-soft); }
+    .bb-sec:last-of-type { border-bottom: none; }
+    .bb-sec > .container > .eyebrow { margin-bottom: .35rem; }
+    .bb-sec h2 { font-family: var(--font-serif); font-weight: var(--fw-semibold); font-size: var(--fs-h2); line-height: 1.1; }
+    .bb-sec .lede { color: var(--color-text-dim); max-width: 680px; margin-top: .6rem; }
+
+    .bb-grid { display: grid; gap: 1.1rem; margin-top: 2rem; }
+    .bb-3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .bb-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+    .bb-card { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: var(--radius);
+               box-shadow: var(--shadow-card); overflow: hidden; }
+    .bb-card__vis { display: grid; place-items: center; padding: 2rem 1.25rem; min-height: 190px; background: var(--ge-cream-light); }
+    .bb-card__vis--dark { background: var(--ge-green-deep); }
+    .bb-card__vis img { max-height: 110px; width: auto; }
+    .bb-card__body { padding: 1rem 1.15rem 1.15rem; border-top: 1px solid var(--line-soft); }
+    .bb-card__body h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: var(--fw-semibold); }
+    .bb-card__body p { font-size: .88rem; color: var(--color-text-dim); margin-top: .3rem; line-height: 1.6; }
+    .bb-card__body a { display: inline-block; margin-top: .8rem; font-size: .82rem; letter-spacing: .1em;
+                       text-transform: uppercase; color: var(--color-primary); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+
+    /* Couleurs */
+    .bb-swatch { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-soft); box-shadow: var(--shadow-sm); }
+    .bb-swatch__chip { height: 118px; }
+    .bb-swatch__info { background: var(--color-surface); padding: .8rem .9rem 1rem; }
+    .bb-swatch__nom { font-family: var(--font-serif); font-weight: var(--fw-semibold); font-size: 1.02rem; }
+    .bb-swatch__role { font-size: .78rem; color: var(--color-text-dim); margin-bottom: .5rem; }
+    .bb-swatch dl { display: grid; grid-template-columns: auto 1fr; gap: .1rem .6rem; font-size: .78rem; }
+    .bb-swatch dt { color: var(--color-text-dim); letter-spacing: .08em; text-transform: uppercase; font-size: .68rem; padding-top: .12rem; }
+    .bb-swatch dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: .8rem; }
+
+    /* Typo */
+    .bb-font { background: var(--color-surface); border: 1px solid var(--line-soft); border-radius: var(--radius);
+               padding: 1.4rem 1.5rem; box-shadow: var(--shadow-card); }
+    .bb-font__nom { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .8rem; }
+    .bb-font__nom b { font-family: var(--font-serif); font-size: 1.3rem; font-weight: var(--fw-semibold); }
+    .bb-font__nom span { font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; color: var(--color-primary); }
+    .bb-font__role { font-size: .88rem; color: var(--color-text-dim); margin-top: .25rem; }
+    .bb-font__demo { margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid var(--line-soft); line-height: 1.25; }
+    .bb-font__abc { font-size: .82rem; color: var(--color-text-dim); margin-top: .7rem; word-break: break-word; line-height: 1.7; }
+
+    /* Tableaux */
+    .bb-tablewrap { overflow-x: auto; margin-top: 1.75rem; }
+    table.bb { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 460px; }
+    table.bb th, table.bb td { text-align: left; padding: .7rem .8rem; border-bottom: 1px solid var(--line-soft); }
+    table.bb th { font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: .72rem;
+                  letter-spacing: .14em; text-transform: uppercase; color: var(--color-text-dim); }
+    table.bb td:first-child { font-family: var(--font-serif); font-weight: var(--fw-semibold); font-size: 1rem; }
+    table.bb code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem;
+                    background: var(--ge-cream-deep); padding: .1rem .4rem; border-radius: 5px; }
+
+    /* Oui / Non */
+    .bb-rules { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); margin-top: 1.75rem; }
+    .bb-rule { border-radius: var(--radius); padding: 1.2rem 1.35rem; border: 1px solid var(--line-soft); background: var(--color-surface); }
+    .bb-rule h3 { font-family: var(--font-serif); font-size: 1.1rem; font-weight: var(--fw-semibold); display: flex; align-items: center; gap: .5rem; }
+    .bb-rule--oui { border-left: 3px solid var(--ge-green); }
+    .bb-rule--non { border-left: 3px solid #a3402f; }
+    .bb-rule--oui h3 span { color: var(--ge-green); }
+    .bb-rule--non h3 span { color: #a3402f; }
+    .bb-rule ul { margin-top: .8rem; display: grid; gap: .5rem; }
+    .bb-rule li { position: relative; padding-left: 1.1rem; font-size: .9rem; color: var(--color-text-dim); line-height: 1.55; }
+    .bb-rule li::before { content: ''; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%; background: var(--color-primary); }
+
+    /* Éléments graphiques */
+    .bb-demo { border-radius: var(--radius); border: 1px solid var(--line-soft); background: var(--color-surface); padding: 1.15rem 1.25rem; }
+    .bb-demo__t { font-family: var(--font-serif); font-weight: var(--fw-semibold); font-size: 1.02rem; margin-bottom: .3rem; }
+    .bb-demo__d { font-size: .85rem; color: var(--color-text-dim); line-height: 1.6; }
+    .bb-demo__x { margin-top: .9rem; height: 74px; border-radius: var(--radius-sm); overflow: hidden; position: relative; background: var(--ge-cream); }
+
+    .bb-foot { text-align: center; padding: 3rem 1.5rem 4rem; }
+    .bb-foot img { height: 62px; margin: 0 auto .9rem; }
+    .bb-foot p { color: var(--color-text-dim); font-size: .9rem; line-height: 1.9; }
+    .bb-foot a { color: var(--color-primary); }
+
+    .bb-print { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 20; box-shadow: var(--shadow-gold); }
+
+    /* =====================================================================
+       IMPRESSION / EXPORT PDF
+       Sans print-color-adjust, les navigateurs suppriment tous les aplats :
+       les pastilles de couleur sortiraient blanches. C'est la règle clé ici.
+       ===================================================================== */
+    /* 10mm : au-delà on gaspille la page, en deçà on risque la zone non
+       imprimable de certaines imprimantes (~5mm). */
+    @page { margin: 10mm; }
+
+    @media print {
+      *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body { background: #fff !important; width: auto !important; }
+      .bb-print { display: none !important; }
+
+      /* Les marges viennent de @page, et de nulle part ailleurs. Sinon l'en-tête
+         (1.5rem) et les sections (clamp 5vw) s'alignent différemment. */
+      .container { max-width: none !important; padding-inline: 0 !important; margin-inline: 0 !important; width: 100% !important; }
+      .bb-top { padding-left: 0; padding-right: 0; }
+
+      /* En-tête compacté : pas de page de garde à moitié vide */
+      .bb-top { padding: 0 0 1.2rem; }
+      .bb-top::before, .bb-top::after { display: none; }
+      .bb-top img { height: 78px; margin-bottom: .8rem; }
+      .bb-top p { margin-top: .7rem; font-size: .85rem; }
+
+      /* On ne coupe jamais un bloc en deux, ni un titre de sa section */
+      .bb-sec { padding: 1.1rem 0; border-bottom: 1px solid #e0dccf; }
+      .bb-sec > .container > .eyebrow,
+      .bb-sec h2, .bb-sec .lede { break-after: avoid; }
+      .bb-card, .bb-swatch, .bb-font, .bb-rule, .bb-demo,
+      table.bb tr, .bb-font__demo { break-inside: avoid; }
+      .bb-card, .bb-swatch, .bb-font, .bb-rule, .bb-demo { box-shadow: none; }
+
+      /* ---------------------------------------------------------------
+         PAGINATION — le point sensible.
+         Chromium (Edge, Chrome) fragmente très mal CSS Grid : les cartes
+         se coupent entre deux pages et de grands blancs apparaissent,
+         « break-inside: avoid » étant ignoré sur un élément de grille.
+         On repasse donc en inline-block : ces boîtes sont *atomiques*,
+         le moteur ne peut pas les couper, il les reporte proprement.
+         --------------------------------------------------------------- */
+      .bb-grid, .bb-rules {
+        display: block !important;
+        font-size: 0;              /* supprime les espaces entre inline-blocks */
+        margin-top: 1rem;
+      }
+      .bb-grid > *, .bb-rules > * {
+        display: inline-block;
+        vertical-align: top;
+        font-size: 1rem;           /* on rétablit pour le contenu */
+        break-inside: avoid;
+        page-break-inside: avoid;  /* ancienne syntaxe, encore lue par Edge */
+        margin: 0 2% .7rem 0;
+      }
+      .bb-3 > * { width: 32%; }
+      .bb-3 > *:nth-child(3n) { margin-right: 0; }
+      .bb-2 > *, .bb-rules > * { width: 49%; }
+      .bb-2 > *:nth-child(2n), .bb-rules > *:nth-child(2n) { margin-right: 0; }
+      .bb-grid > .bb-full { width: 100%; margin-right: 0; }   /* carte pleine largeur */
+
+      /* Visuels resserrés pour tenir sans pages blanches */
+      .bb-card__vis { min-height: 0; padding: .9rem; }
+      .bb-card__vis img { max-height: 68px; }
+      .bb-card__body { padding: .7rem .8rem .8rem; }
+      .bb-card__body p { font-size: .78rem; }
+      .bb-swatch__chip { height: 58px; }
+      .bb-swatch__info { padding: .55rem .6rem .7rem; }
+      .bb-swatch__role { font-size: .72rem; }
+      .bb-swatch dl { gap: .05rem .45rem; }
+      .bb-swatch dt { font-size: .62rem; }
+      .bb-swatch dd { font-size: .74rem; white-space: nowrap; }   /* « 156 · 122 · 38 » reste sur une ligne */
+      .bb-font { padding: .9rem 1rem; }
+      .bb-font__demo { font-size: 1.6rem !important; margin-top: .7rem; padding-top: .7rem; }
+      .bb-demo__x { height: 56px; }
+      .bb-foot { padding: 1.4rem 0 0; }
+
+      /* Les tableaux ne défilent pas sur papier */
+      .bb-tablewrap { overflow: visible; margin-top: 1rem; }
+      table.bb { min-width: 0; font-size: .8rem; }
+      table.bb th, table.bb td { padding: .45rem .5rem; }
+
+      /* « Télécharger le PNG » n'a aucun sens sur papier : on donne le chemin.
+         font-size:0 masque le libellé d'origine, les pseudo-éléments le remplacent. */
+      .bb-card__body a[download] {
+        border: none; color: var(--color-text-dim); text-transform: none;
+        letter-spacing: 0; font-size: 0; margin-top: .5rem;
+      }
+      .bb-card__body a[download]::before { content: 'Fichier : '; font-size: .75rem; }
+      .bb-card__body a[download]::after  { content: attr(href); font-size: .75rem; word-break: break-all; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ EN-TÊTE ============ -->
+  <header class="bb-top">
+    <img src="assets/logo-principal.png?v=3" alt="GuillaumEvent" />
+    <p class="eyebrow">Charte de marque</p>
+    <h1>GuillaumEvent</h1>
+    <div class="sig">votre événement sur mesure en Provence</div>
+    <p>
+      Ce document réunit tout ce qu'il faut pour créer un support à l'identité GuillaumEvent :
+      logos, couleurs, typographies et règles d'usage. Il est destiné aux graphistes, imprimeurs
+      et partenaires qui produisent des visuels pour la marque.
+    </p>
+  </header>
+
+  <!-- ============ LOGOS ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">01 — Identité</p>
+      <h2>Les logos</h2>
+      <p class="lede">
+        Trois déclinaisons, une par usage. Les fichiers sont en PNG à fond transparent :
+        cliquez sur un logo pour le télécharger.
+      </p>
+
+      <div class="bb-grid bb-3">
+        <div class="bb-card">
+          <div class="bb-card__vis"><img src="assets/logo-principal.png?v=3" alt="Logo principal" /></div>
+          <div class="bb-card__body">
+            <h3>Logo principal</h3>
+            <p>La version complète et illustrée. À privilégier dès qu'il y a de la place : affiches,
+               couvertures, page d'accueil, documents imprimés.</p>
+            <a href="assets/logo-principal.png" download>Télécharger le PNG</a>
+          </div>
+        </div>
+
+        <div class="bb-card">
+          <div class="bb-card__vis"><img src="assets/logo-emblem.png?v=3" alt="Emblème" /></div>
+          <div class="bb-card__body">
+            <h3>Emblème</h3>
+            <p>Le médaillon accompagné du nom. Pour les pieds de page, les signatures,
+               les cartes de visite et les formats intermédiaires.</p>
+            <a href="assets/logo-emblem.png" download>Télécharger le PNG</a>
+          </div>
+        </div>
+
+        <div class="bb-card">
+          <div class="bb-card__vis"><img src="assets/logo-icon.png?v=3" alt="Médaillon seul" /></div>
+          <div class="bb-card__body">
+            <h3>Médaillon seul</h3>
+            <p>Le monogramme « GE » sans texte. Pour les petites tailles : favicon, photo de profil,
+               tampon, marquage sur objet.</p>
+            <a href="assets/logo-icon.png" download>Télécharger le PNG</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="bb-grid bb-3">
+        <div class="bb-card">
+          <div class="bb-card__vis bb-card__vis--dark"><img src="assets/logo-principal.png?v=3" alt="Logo sur fond sombre" /></div>
+          <div class="bb-card__body">
+            <h3>Sur fond sombre</h3>
+            <p>Les logos restent lisibles sur le vert bouteille foncé. Éviter en revanche les fonds
+               moyens (gris, beige soutenu) qui écrasent l'or.</p>
+          </div>
+        </div>
+        <div class="bb-card">
+          <div class="bb-card__vis" style="background:var(--ge-white)"><img src="assets/logo-emblem.png?v=3" alt="Logo sur fond blanc" /></div>
+          <div class="bb-card__body">
+            <h3>Sur fond clair</h3>
+            <p>Crème, blanc cassé ou blanc pur conviennent. C'est la configuration à privilégier
+               pour l'impression.</p>
+          </div>
+        </div>
+        <div class="bb-card">
+          <div class="bb-card__vis" style="background:var(--ge-cream)">
+            <div style="display:grid;place-items:center;gap:.5rem">
+              <div style="border:1px dashed rgba(156,122,38,.6);padding:26px;border-radius:10px">
+                <img src="assets/logo-icon.png?v=3" alt="Zone de protection" style="max-height:64px" />
+              </div>
+            </div>
+          </div>
+          <div class="bb-card__body">
+            <h3>Zone de protection</h3>
+            <p>Laissez autour du logo une marge vide au moins égale à <b>la moitié de sa hauteur</b>.
+               Aucun texte ni élément graphique ne doit y entrer.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COULEURS ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">02 — Couleurs</p>
+      <h2>La palette</h2>
+      <p class="lede">
+        Trois familles : le <b>crème</b> comme fond, le <b>vert bouteille</b> comme ancrage,
+        l'<b>or champagne</b> comme accent. L'or ne s'utilise jamais en aplat sur de grandes
+        surfaces — c'est une touche, pas un fond.
+      </p>
+
+      <div class="bb-grid bb-3" id="palette"></div>
+
+      <p class="lede" style="margin-top:1.75rem;font-size:.86rem">
+        Les valeurs CMJN sont une <b>conversion indicative</b>, calculée automatiquement.
+        Pour un travail d'impression, faites-les valider par votre imprimeur avec le profil
+        colorimétrique de sa presse : le rendu de l'or en dépend fortement.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ TYPOGRAPHIE ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">03 — Typographie</p>
+      <h2>Les caractères</h2>
+      <p class="lede">
+        Trois polices, toutes gratuites et disponibles sur Google Fonts. Chacune a un rôle précis :
+        ne pas les intervertir.
+      </p>
+
+      <div class="bb-grid bb-2" style="margin-top:2rem">
+        <div class="bb-font">
+          <div class="bb-font__nom"><b>Cormorant Garamond</b><span>Titres</span></div>
+          <div class="bb-font__role">Graisses utilisées : 400, 500, 600, 700 · italique 400.
+            Pour les titres, les chiffres mis en avant et les noms propres.</div>
+          <div class="bb-font__demo" style="font-family:var(--font-serif);font-weight:600;font-size:2.4rem">
+            Votre soirée, sur mesure
+          </div>
+          <div class="bb-font__abc" style="font-family:var(--font-serif)">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; À Ç É È Ê Î Ô Û
+          </div>
+        </div>
+
+        <div class="bb-font">
+          <div class="bb-font__nom"><b>Jost</b><span>Textes &amp; interface</span></div>
+          <div class="bb-font__role">Graisses utilisées : 300, 400, 500, 600.
+            Pour les paragraphes, les boutons, les menus et les sur-titres en capitales espacées.</div>
+          <div class="bb-font__demo" style="font-family:var(--font-sans);font-weight:300;font-size:1.5rem">
+            Un son qui enveloppe, une lumière qui sublime.
+          </div>
+          <div class="bb-font__abc" style="font-family:var(--font-sans)">
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>0123456789 &amp; À Ç É È Ê Î Ô Û
+          </div>
+        </div>
+
+        <div class="bb-font bb-full" style="grid-column:1/-1">
+          <div class="bb-font__nom"><b>Great Vibes</b><span>Accent manuscrit</span></div>
+          <div class="bb-font__role">Graisse unique : 400. Réservée aux touches d'émotion —
+            une ligne courte sous un titre, un prénom, une signature.
+            <b>Jamais en capitales, jamais pour un paragraphe.</b></div>
+          <div class="bb-font__demo" style="font-family:var(--font-script);color:var(--color-primary);font-size:2.8rem">
+            Camille &amp; Antoine
+          </div>
+        </div>
+      </div>
+
+      <div class="bb-tablewrap">
+        <table class="bb">
+          <thead><tr><th>Usage</th><th>Police</th><th>Graisse</th><th>Détail</th></tr></thead>
+          <tbody>
+            <tr><td>Grand titre</td><td>Cormorant Garamond</td><td>600</td><td>Interligne <code>1.15</code>, interlettrage <code>0.01em</code></td></tr>
+            <tr><td>Titre de section</td><td>Cormorant Garamond</td><td>600</td><td>—</td></tr>
+            <tr><td>Sur-titre</td><td>Jost</td><td>500</td><td>Capitales, interlettrage <code>0.32em</code>, en or</td></tr>
+            <tr><td>Paragraphe</td><td>Jost</td><td>300</td><td>Interligne <code>1.7</code></td></tr>
+            <tr><td>Bouton</td><td>Jost</td><td>500</td><td>Interlettrage <code>0.05em</code></td></tr>
+            <tr><td>Accent manuscrit</td><td>Great Vibes</td><td>400</td><td>En or, en bas de casse</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="lede" style="margin-top:1.5rem;font-size:.86rem">
+        Import web :
+        <code style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;background:var(--ge-cream-deep);padding:.15rem .45rem;border-radius:5px;word-break:break-all">https://fonts.google.com/share?selection.family=Cormorant+Garamond|Great+Vibes|Jost</code>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ ÉLÉMENTS GRAPHIQUES ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">04 — Vocabulaire visuel</p>
+      <h2>Les éléments récurrents</h2>
+      <p class="lede">Ce sont eux qui rendent un visuel immédiatement reconnaissable, au-delà du logo.</p>
+
+      <div class="bb-grid bb-3" style="margin-top:2rem">
+        <div class="bb-demo">
+          <div class="bb-demo__t">Le filet doré</div>
+          <div class="bb-demo__d">Un liseré fin (1 px) en retrait des bords, qui encadre les visuels.
+            Opacité ~42 %, angles légèrement arrondis.</div>
+          <div class="bb-demo__x"><div style="position:absolute;inset:10px;border:1px solid rgba(156,122,38,.42);border-radius:6px"></div></div>
+        </div>
+
+        <div class="bb-demo">
+          <div class="bb-demo__t">Les halos</div>
+          <div class="bb-demo__d">Deux dégradés radiaux très diffus — un or en haut à gauche,
+            un vert en bas à droite — qui réchauffent le fond crème sans le charger.</div>
+          <div class="bb-demo__x">
+            <div style="position:absolute;width:150px;height:150px;top:-60px;left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(156,122,38,.35),transparent 68%)"></div>
+            <div style="position:absolute;width:150px;height:150px;bottom:-70px;right:-20px;border-radius:50%;background:radial-gradient(circle,rgba(72,89,44,.35),transparent 68%)"></div>
+          </div>
+        </div>
+
+        <div class="bb-demo">
+          <div class="bb-demo__t">La pastille dorée</div>
+          <div class="bb-demo__d">Bouton entièrement arrondi (<code>100px</code>), dégradé vertical
+            de l'or clair vers l'or sombre, texte blanc cassé.</div>
+          <div class="bb-demo__x" style="display:grid;place-items:center">
+            <span style="display:inline-block;background:linear-gradient(180deg,var(--ge-gold-soft),var(--ge-gold-deep));color:#fffdf7;border-radius:100px;padding:.55rem 1.5rem;font-size:.85rem;font-weight:500;letter-spacing:.05em">guillaumevent.fr</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bb-tablewrap">
+        <table class="bb">
+          <thead><tr><th>Élément</th><th>Valeur</th><th>Usage</th></tr></thead>
+          <tbody>
+            <tr><td>Arrondi — champs</td><td><code>10px</code></td><td>Saisies, petites vignettes</td></tr>
+            <tr><td>Arrondi — cartes</td><td><code>14px</code></td><td>Panneaux, blocs de contenu</td></tr>
+            <tr><td>Arrondi — boutons</td><td><code>100px</code></td><td>Toujours entièrement arrondis</td></tr>
+            <tr><td>Ombre — carte</td><td><code>0 12px 32px -20px rgba(44,55,25,.32)</code></td><td>Teintée vert, jamais grise ni noire</td></tr>
+            <tr><td>Ombre — or</td><td><code>0 10px 26px -12px rgba(124,94,29,.55)</code></td><td>Sous les boutons dorés</td></tr>
+            <tr><td>Largeur de page</td><td><code>1180px</code></td><td>Version resserrée : <code>820px</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORMATS ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">05 — Formats</p>
+      <h2>Les tailles à respecter</h2>
+      <p class="lede">Les dimensions utilisées pour les visuels de la marque sur les réseaux sociaux.</p>
+      <div class="bb-tablewrap">
+        <table class="bb">
+          <thead><tr><th>Support</th><th>Dimensions</th><th>Ratio</th><th>Remarque</th></tr></thead>
+          <tbody>
+            <tr><td>Post portrait</td><td><code>1080 × 1350</code></td><td>4:5</td><td>Format à privilégier — c'est celui qui occupe le plus d'écran</td></tr>
+            <tr><td>Post carré</td><td><code>1080 × 1080</code></td><td>1:1</td><td>Polyvalent, bon pour les carrousels mixtes</td></tr>
+            <tr><td>Story / Reels</td><td><code>1080 × 1920</code></td><td>9:16</td><td>Garder les textes à distance des bords (interface par-dessus)</td></tr>
+            <tr><td>Marge intérieure</td><td><code>88 à 150 px</code></td><td>—</td><td>Selon le format ; le filet doré se place à <code>26px</code> du bord</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RÈGLES ============ -->
+  <section class="bb-sec">
+    <div class="container">
+      <p class="eyebrow">06 — Règles d'usage</p>
+      <h2>À faire, à ne pas faire</h2>
+
+      <div class="bb-rules">
+        <div class="bb-rule bb-rule--oui">
+          <h3><span>✓</span> À faire</h3>
+          <ul>
+            <li>Laisser respirer : de larges marges et beaucoup de fond crème vide</li>
+            <li>Réserver l'or aux accents — un titre, un filet, un bouton, une signature</li>
+            <li>Associer le serif (titres) et le sans-serif (textes) comme indiqué</li>
+            <li>Conserver les proportions du logo et sa zone de protection</li>
+            <li>Utiliser des ombres teintées vert, toujours douces et diffuses</li>
+            <li>Écrire au « nous » : la voix de la société, jamais un duo nommé</li>
+          </ul>
+        </div>
+        <div class="bb-rule bb-rule--non">
+          <h3><span>✕</span> À ne pas faire</h3>
+          <ul>
+            <li>Déformer, incliner, recolorer ou détourer le logo</li>
+            <li>Utiliser l'or en aplat sur une grande surface — il devient criard</li>
+            <li>Ajouter des couleurs hors palette (surtout froides : bleu, violet, rose)</li>
+            <li>Employer Great Vibes en capitales ou pour un paragraphe</li>
+            <li>Poser le logo sur une photo chargée sans voile d'atténuation</li>
+            <li>Remplacer les polices par des approchantes (Times, Arial, Futura…)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PIED ============ -->
+  <footer class="bb-foot">
+    <img src="assets/logo-icon.png?v=3" alt="" />
+    <p>
+      <b style="font-family:var(--font-serif);font-size:1.15rem;color:var(--color-text)">GuillaumEvent</b><br>
+      DJ mariage &amp; événementiel · Vaucluse &amp; Provence<br>
+      <a href="https://guillaumevent.fr">guillaumevent.fr</a> ·
+      <a href="mailto:contact@guillaumevent.fr">contact@guillaumevent.fr</a> ·
+      06 61 07 98 24
+    </p>
+    <p style="margin-top:1.25rem;font-size:.8rem">
+      Une question sur un usage non couvert par ce document ? Écrivez-nous avant de produire.
+    </p>
+  </footer>
+
+  <button class="btn btn--gold btn--small bb-print" onclick="window.print()">Imprimer / PDF</button>
+
+<script>
+  /* La palette est construite ici pour que les valeurs RVB et CMJN soient
+     calculées à partir du HEX — aucun risque d'erreur de recopie. */
+  var COULEURS = [
+    ['Or champagne',    '#9c7a26', 'Accent principal : titres accentués, filets, boutons'],
+    ['Or clair',        '#b89233', 'Haut des dégradés dorés, survols'],
+    ['Or sombre',       '#7c5e1d', 'Bas des dégradés dorés'],
+    ['Vert bouteille',  '#48592c', 'Accent secondaire, logo, validations'],
+    ['Vert profond',    '#2c3719', 'Fonds sombres, cadres de maquettes'],
+    ['Encre',           '#2b3320', 'Texte principal (un vert quasi noir)'],
+    ['Encre atténuée',  '#5a5f44', 'Texte secondaire, légendes'],
+    ['Crème',           '#f1ead9', 'Fond de page — la couleur dominante'],
+    ['Crème soutenu',   '#e8dec5', 'Sections alternées, bandeaux'],
+    ['Crème clair',     '#f8f1e2', 'Surfaces de cartes'],
+    ['Blanc cassé',     '#fffdf7', 'Champs de saisie, texte sur bouton doré']
+  ];
+
+  function versRVB(hex) {
+    var n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function versCMJN(rgb) {
+    var r = rgb[0] / 255, v = rgb[1] / 255, b = rgb[2] / 255;
+    var k = 1 - Math.max(r, v, b);
+    if (k === 1) return [0, 0, 0, 100];
+    var f = function (x) { return Math.round(((1 - x - k) / (1 - k)) * 100); };
+    return [f(r), f(v), f(b), Math.round(k * 100)];
+  }
+
+  document.getElementById('palette').innerHTML = COULEURS.map(function (c) {
+    var nom = c[0], hex = c[1], role = c[2];
+    var rgb = versRVB(hex), cmjn = versCMJN(rgb);
+    var clair = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 > 186;
+    return '<div class="bb-swatch">' +
+      '<div class="bb-swatch__chip" style="background:' + hex + (clair ? ';box-shadow:inset 0 0 0 1px rgba(44,55,25,.12)' : '') + '"></div>' +
+      '<div class="bb-swatch__info">' +
+        '<div class="bb-swatch__nom">' + nom + '</div>' +
+        '<div class="bb-swatch__role">' + role + '</div>' +
+        '<dl>' +
+          '<dt>Hex</dt><dd>' + hex.toUpperCase() + '</dd>' +
+          '<dt>RVB</dt><dd>' + rgb.join(' · ') + '</dd>' +
+          '<dt>CMJN</dt><dd>' + cmjn.join(' · ') + '</dd>' +
+        '</dl>' +
+      '</div></div>';
+  }).join('');
+</script>
+</body>
+</html>
