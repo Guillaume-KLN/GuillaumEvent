@@ -27,7 +27,7 @@ exports.handler = async (event) => {
 
   const {
     SUPABASE_URL, SUPABASE_SERVICE_KEY, RESEND_API_KEY,
-    MAIL_EXPEDITEUR, ADMIN_EMAIL
+    MAIL_EXPEDITEUR, ADMIN_EMAIL, SITE_URL
   } = process.env;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
@@ -78,6 +78,9 @@ exports.handler = async (event) => {
     const d = lignes[0];
     const acompte = Math.round((d.total || 0) * 0.20);
     const quand = new Date().toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+    // Le devis reste consultable et imprimable après acceptation
+    const lienDevis = (SITE_URL || 'https://guillaumevent.fr') +
+                      '/devis-client.html?ref=' + encodeURIComponent(d.token || token);
 
     /* --- 2) Les e-mails --- */
     if (RESEND_API_KEY && MAIL_EXPEDITEUR) {
@@ -118,6 +121,18 @@ exports.handler = async (event) => {
             <p style="margin:0 0 14px;font-size:15px;line-height:1.7">
               Votre acceptation a été enregistrée le <strong>${quand}</strong>.
               Conservez cet e-mail : il fait office de confirmation.
+            </p>
+
+            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 20px">
+              <tr><td style="background:#9c7a26;border-radius:100px">
+                <a href="${lienDevis}" style="display:inline-block;padding:13px 28px;color:#fff;text-decoration:none;font-size:15px;font-weight:600">
+                  Voir et enregistrer mon devis
+                </a>
+              </td></tr>
+            </table>
+            <p style="margin:0 0 18px;font-size:13px;color:#5a5f44;line-height:1.7;text-align:center">
+              Votre devis reste consultable à tout moment. Le bouton
+              « Imprimer / Enregistrer en PDF » vous permet d'en garder une copie.
             </p>
             <p style="margin:0 0 14px;font-size:15px;line-height:1.7">
               <strong>La suite :</strong> votre date sera définitivement bloquée à réception
