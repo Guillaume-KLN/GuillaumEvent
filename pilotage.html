@@ -196,6 +196,24 @@
     <div class="toast" id="toast">✓</div>
   </div>
 
+  <!-- ============ ESPACE MARIÉS EN CONSULTATION ============ -->
+  <div class="prep" id="espace">
+    <div class="prep__box" style="max-width:520px">
+      <div class="prep__head">
+        <h2 id="espaceTitre">Espace mariés</h2>
+        <button class="prep__x" id="espaceClose" aria-label="Fermer">✕</button>
+      </div>
+      <div style="background:#6d7a58; padding:1rem">
+        <iframe id="espaceFrame" title="Espace mariés" src="about:blank"
+                style="width:100%; height:76vh; border:0; border-radius:var(--radius-sm); background:#fff"></iframe>
+      </div>
+      <div class="prep__foot">
+        <span class="prep__note">Vous modifiez ici le même espace que les mariés — vos changements leur sont visibles.</span>
+        <a class="btn btn--ghost btn--small" id="espaceOnglet" href="#" target="_blank" rel="noopener">Ouvrir dans un onglet</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ ATELIER : PRÉPARER ET ENVOYER LE DEVIS ============ -->
   <div class="prep" id="prep">
     <div class="prep__box">
@@ -351,6 +369,7 @@
         </div>
         <div class="wactions">
           <button class="btn btn--gold btn--small" data-mail="${w.id}">✉️ Envoyer les accès</button>
+          <button class="btn btn--ghost btn--small" data-espace="${w.id}">👁 Ouvrir leur espace</button>
           ${w.acces_envoye_le ? `<span class="lead__meta">envoyés le ${new Date(w.acces_envoye_le).toLocaleDateString('fr-FR')}</span>` : ''}
           <button class="btn btn--ghost btn--small" data-copy="${w.id}">Copier le message</button>
           <button class="btn btn--ghost btn--small" data-newpass="${w.id}">Nouveau mot de passe</button>
@@ -384,8 +403,11 @@
 
   $('wList').addEventListener('click', async (e) => {
     const b = e.target.closest('button'); if (!b) return;
-    const id = b.dataset.copy || b.dataset.newpass || b.dataset.delw || b.dataset.mail;
+    const id = b.dataset.copy || b.dataset.newpass || b.dataset.delw || b.dataset.mail || b.dataset.espace;
     const w = mariages.find((x) => x.id === id); if (!w) return;
+
+    /* Consultation de l'espace mariés, sans quitter Pilotage */
+    if (b.dataset.espace) { ouvrirEspace(w); return; }
 
     /* Envoi automatique des accès par e-mail */
     if (b.dataset.mail) {
@@ -657,6 +679,42 @@ Votre événement sur mesure en Provence
     $('sProchain').textContent = futurs.length ? joursAvant(futurs[0].date_evenement) + ' j' : '—';
     $('sDevis').textContent = devis.filter((d) => d.statut === 'nouveau').length;
   }
+
+  /* ---------------- Espace mariés en consultation ----------------
+     On charge le vrai espace dans un cadre et on lui transmet les identifiants
+     du couple : c'est exactement ce qu'ils voient, et les modifications sont
+     partagées. Les identifiants ne quittent pas le navigateur. */
+  let espaceCouple = null;
+
+  function ouvrirEspace(w) {
+    espaceCouple = w;
+    $('espaceTitre').textContent = 'Espace de ' + (w.couple || w.code);
+    $('espaceOnglet').href = 'espace-maries.html';
+    $('espaceFrame').src = 'espace-maries.html?admin=1&v=' + Date.now();
+    $('espace').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fermerEspace() {
+    $('espace').classList.remove('on');
+    $('espaceFrame').src = 'about:blank';
+    espaceCouple = null;
+    document.body.style.overflow = '';
+  }
+
+  // Le cadre prévient qu'il est prêt : on lui envoie alors les identifiants
+  window.addEventListener('message', (ev) => {
+    if (ev.origin !== location.origin || !ev.data || ev.data.type !== 'em:pret') return;
+    if (!espaceCouple) return;
+    $('espaceFrame').contentWindow.postMessage(
+      { type: 'em:acces', code: espaceCouple.code, pass: espaceCouple.mot_de_passe },
+      location.origin
+    );
+  });
+
+  $('espaceClose').addEventListener('click', fermerEspace);
+  $('espace').addEventListener('click', (e) => { if (e.target === $('espace')) fermerEspace(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && espaceCouple) fermerEspace(); });
 
   /* ---------------- Atelier : préparer et envoyer le devis ----------------
      L'aperçu est la vraie page devis-client.html chargée dans un cadre :

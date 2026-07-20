@@ -81,6 +81,19 @@
     .section-sub { color: var(--color-text-dim); font-size: 0.9rem; margin: 0.15rem 0 1.1rem; }
 
     /* Timeline éditable (cartes) */
+    /* Deux champs côte à côte, qui repassent l'un sous l'autre sur mobile.
+       « min-width: 0 » est indispensable : sans lui, un champ de type heure
+       impose sa largeur naturelle et déborde de sa colonne. */
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.75rem; }
+    .two > * { min-width: 0; }
+    .two input { width: 100%; box-sizing: border-box; }
+    @media (max-width: 520px) { .two { grid-template-columns: 1fr; gap: 0; } }
+
+    /* Consultation depuis Pilotage : on masque ce qui ne concerne que les mariés */
+    body.mode-admin #installBtn,
+    body.mode-admin #installText,
+    body.mode-admin #logoutBtn { display: none !important; }
+
     .toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
     .tl-item { display: flex; gap: 0.9rem; margin-bottom: 1rem; align-items: stretch; }
     .tl-time { flex: none; width: 96px; display: flex; align-items: center; }
@@ -221,11 +234,11 @@
     <section class="view" id="v-brief">
       <h2 class="section-h">Le brief</h2>
       <p class="section-sub">Les infos pour que tout roule le jour J.</p>
-      <div class="two" style="display:grid; grid-template-columns:1fr 1fr; gap:0 0.75rem">
+      <div class="two">
         <div class="field"><label>Noms des mariés</label><input data-brief="couple" placeholder="Camille & Thomas" /></div>
         <div class="field"><label>Date du mariage</label><input type="date" data-brief="date" /></div>
       </div>
-      <div class="two" style="display:grid; grid-template-columns:1fr 1fr; gap:0 0.75rem">
+      <div class="two">
         <div class="field"><label>Heure de début</label><input type="time" data-brief="heure" /></div>
         <div class="field"><label>Nombre d'invités</label><input type="number" min="0" data-brief="invites" placeholder="80" /></div>
       </div>
@@ -348,7 +361,8 @@
     if (!ok) { err.textContent = 'Code ou mot de passe incorrect.'; err.style.display = 'block'; return; }
 
     session = { code, pass };
-    localStorage.setItem('ge_session', JSON.stringify(session));
+    // En mode administrateur, on ne mémorise rien : la session appartient aux mariés
+    if (!MODE_ADMIN) localStorage.setItem('ge_session', JSON.stringify(session));
     seederDeroule();                       // déroulé type à la première connexion
     $('loginView').style.display = 'none'; $('appView').classList.add('is-on');
     hydrate();
@@ -558,8 +572,27 @@
   const toastEl = $('toast'); let toastT;
   function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 1600); }
 
-  /* ---- Reprise de session ---- */
-  reprendreSession();
+  /* ---- Mode administrateur ----
+     Pilotage ouvre cet espace dans un cadre et lui transmet les identifiants
+     du couple : Guillaume consulte et modifie le déroulé sans quitter sa page.
+     On n'accepte les messages que de sa propre origine, et on n'enregistre pas
+     la session — sinon elle écraserait celle d'un autre couple. */
+  const MODE_ADMIN = new URLSearchParams(location.search).has('admin');
+
+  if (MODE_ADMIN) {
+    document.body.classList.add('mode-admin');
+    window.addEventListener('message', (ev) => {
+      if (ev.origin !== location.origin) return;
+      if (!ev.data || ev.data.type !== 'em:acces') return;
+      $('code').value = ev.data.code || '';
+      $('pass').value = ev.data.pass || '';
+      $('loginForm').requestSubmit();
+    });
+    try { parent.postMessage({ type: 'em:pret' }, location.origin); } catch (e) {}
+  } else {
+    /* ---- Reprise de session ---- */
+    reprendreSession();
+  }
 
   /* ---- PWA : installation ---- */
   let deferred = null;
