@@ -204,6 +204,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         from: MAIL_EXPEDITEUR,
         to: [d.email],
+        // Copie cachée à Guillaume : son archive personnelle, invisible du client
+        bcc: ADMIN_EMAIL ? [ADMIN_EMAIL] : undefined,
         reply_to: ADMIN_EMAIL || undefined,
         subject: `Votre facture ${numero} — GuillaumEvent`,
         html
