@@ -196,6 +196,71 @@
     <div class="toast" id="toast">✓</div>
   </div>
 
+  <!-- ============ ATELIER : ÉTABLIR ET ENVOYER LA FACTURE ============ -->
+  <div class="prep" id="fact">
+    <div class="prep__box">
+      <div class="prep__head">
+        <h2 id="factTitre">Établir la facture</h2>
+        <button class="prep__x" id="factClose" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="prep__body">
+        <div class="prep__form">
+          <h3>Adresse du client</h3>
+          <textarea id="fAdresse" rows="3" placeholder="12 rue des Oliviers&#10;84220 Gordes"></textarea>
+          <div style="font-size:.78rem;color:var(--color-text-dim);margin-top:.35rem">
+            Mention obligatoire sur une facture.
+          </div>
+
+          <h3>Acompte déjà versé</h3>
+          <div class="prep__row">
+            <input type="number" id="fAcompte" min="0" step="1" />
+            <span style="font-size:.85rem;color:var(--color-text-dim)">€</span>
+          </div>
+          <div style="font-size:.78rem;color:var(--color-text-dim)" id="fAcompteInfo"></div>
+
+          <h3>Message dans l'e-mail
+            <button class="btn btn--ghost btn--small" id="fMotReset" type="button"
+                    style="float:right;margin-top:-.3rem;font-size:.72rem;text-transform:none;letter-spacing:0">
+              Texte générique</button>
+          </h3>
+          <textarea id="fMot" rows="7"></textarea>
+          <div style="font-size:.78rem;color:var(--color-text-dim);margin-top:.35rem">
+            L'invitation « client fidèle » et le détail chiffré sont ajoutés automatiquement.
+          </div>
+        </div>
+
+        <div class="prep__apercu">
+          <iframe id="factFrame" title="Aperçu de la facture" src="about:blank"></iframe>
+        </div>
+      </div>
+
+      <div class="prep__foot">
+        <span class="prep__note" id="factNote">Rien n'est envoyé tant que vous n'avez pas cliqué sur « Envoyer ».</span>
+        <button class="btn btn--ghost" id="factAnnuler">Annuler</button>
+        <button class="btn btn--gold" id="factEnvoyer">🧾 Envoyer la facture</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CONSULTATION D'UN DEVIS ENVOYÉ ============ -->
+  <div class="prep" id="voirD">
+    <div class="prep__box" style="max-width:900px">
+      <div class="prep__head">
+        <h2 id="voirTitre">Devis</h2>
+        <button class="prep__x" id="voirClose" aria-label="Fermer">✕</button>
+      </div>
+      <div style="background:#6d7a58; padding:1rem">
+        <iframe id="voirFrame" title="Devis" src="about:blank"
+                style="width:100%; height:76vh; border:0; border-radius:var(--radius-sm); background:#fff"></iframe>
+      </div>
+      <div class="prep__foot">
+        <span class="prep__note">C'est le document exact reçu par le client. Le bouton « Imprimer » se trouve en bas du devis.</span>
+        <a class="btn btn--ghost btn--small" id="voirOnglet" href="#" target="_blank" rel="noopener">Ouvrir dans un onglet</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ ESPACE MARIÉS EN CONSULTATION ============ -->
   <div class="prep" id="espace">
     <div class="prep__box" style="max-width:520px">
@@ -529,8 +594,14 @@ Votre événement sur mesure en Provence
             ${STATUTS.map((s) => `<option value="${s}" ${d.statut === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
           <button class="btn btn--gold btn--small" data-prep="${d.id}">✉️ Préparer le devis</button>
+          ${d.token && d.envoye_le ? `<button class="btn btn--ghost btn--small" data-voir="${d.id}">📄 Voir le devis</button>` : ''}
           ${d.envoye_le ? `<span class="lead__meta">envoyé le ${new Date(d.envoye_le).toLocaleDateString('fr-FR')}</span>` : ''}
-          <button class="btn btn--ghost btn--small" data-deld="${d.id}">Supprimer</button>
+          ${facturable(d) || d.facture_numero
+            ? `<button class="btn btn--gold btn--small" data-fact="${d.id}">🧾 ${d.facture_numero ? 'Revoir la facture' : 'Établir la facture'}</button>` : ''}
+          ${d.facture_numero ? `<span class="lead__meta">facture ${esc(d.facture_numero)} du ${new Date(d.facture_le).toLocaleDateString('fr-FR')}</span>` : ''}
+          ${d.facture_numero
+            ? `<span class="lead__meta" title="Une facture émise ne peut pas être supprimée">🔒 conservée</span>`
+            : `<button class="btn btn--ghost btn--small" data-deld="${d.id}">Supprimer</button>`}
         </div></div>`;
     }).join('');
   }
@@ -546,6 +617,10 @@ Votre événement sur mesure en Provence
   $('lList').addEventListener('click', async (e) => {
     const p = e.target.closest('button[data-prep]');
     if (p) { ouvrirPrep(p.dataset.prep); return; }
+    const v = e.target.closest('button[data-voir]');
+    if (v) { ouvrirVoirDevis(v.dataset.voir); return; }
+    const f = e.target.closest('button[data-fact]');
+    if (f) { ouvrirFacture(f.dataset.fact); return; }
     const b = e.target.closest('button[data-deld]'); if (!b) return;
     if (!confirm('Supprimer cette demande ?')) return;
     const { error } = await sb.from('devis').delete().eq('id', b.dataset.deld);
@@ -680,6 +755,147 @@ Votre événement sur mesure en Provence
     $('sDevis').textContent = devis.filter((d) => d.statut === 'nouveau').length;
   }
 
+  /* ---------------- Atelier : établir et envoyer la facture ----------------
+     La facture n'a de sens qu'après la prestation, et seulement si le devis a
+     été signé. Le numéro est attribué par le serveur pour garantir une série
+     continue — la loi l'exige, contrairement aux devis. */
+  const passee = (d) => d.date_evenement && new Date(d.date_evenement + 'T23:59:59') < new Date();
+  const facturable = (d) => d.statut === 'signé' && passee(d);
+
+  let factId = null, factFramePrete = false;
+
+  function motFacture(d) {
+    const q = { 'Mariage': 'votre mariage', 'Événement privé': 'votre événement',
+                'Événement professionnel': 'votre événement' }[d.type_evenement] || 'votre événement';
+    return `Merci encore pour votre confiance — j'ai passé un très beau moment à animer ${q}.
+
+Vous trouverez ci-dessous la facture correspondant à la prestation. N'hésitez pas à revenir vers moi pour la moindre question.
+
+Musicalement,
+Guillaume`;
+  }
+
+  function factDonnees() {
+    const d = devis.find((x) => x.id === factId) || {};
+    return {
+      facture_numero: d.facture_numero || '(attribué à l\'envoi)',
+      facture_le: d.facture_le || new Date().toISOString(),
+      prenom: d.prenom, email: d.email, telephone: d.telephone,
+      adresse_client: $('fAdresse').value.trim() || null,
+      type_evenement: d.type_evenement, date_evenement: d.date_evenement, ville: d.ville,
+      distance_km: d.distance_km, base: d.base, options: d.options,
+      deplacement: d.deplacement, remise: d.remise, total: d.total,
+      acompte_verse: Number($('fAcompte').value) || 0
+    };
+  }
+
+  function factPousser() {
+    if (!factFramePrete) return;
+    const f = factDonnees();
+    $('factFrame').contentWindow.postMessage({ type: 'facture:apercu', facture: f }, location.origin);
+    const solde = Math.max(0, (Number(f.total) || 0) - f.acompte_verse);
+    $('factNote').textContent = 'Solde à régler : ' + solde.toLocaleString('fr-FR') + ' €';
+  }
+
+  window.addEventListener('message', (ev) => {
+    if (ev.origin !== location.origin || !ev.data || ev.data.type !== 'facture:pret') return;
+    factFramePrete = true; factPousser();
+  });
+
+  function ouvrirFacture(id) {
+    const d = devis.find((x) => x.id === id); if (!d) return;
+    factId = id; factFramePrete = false;
+
+    const attendu = Math.round((Number(d.total) || 0) * 0.20);
+    $('factTitre').textContent = (d.facture_numero ? 'Facture ' + d.facture_numero : 'Établir la facture') +
+                                (d.prenom ? ' — ' + d.prenom : '');
+    $('fAdresse').value = d.adresse_client || '';
+    $('fAcompte').value = (d.acompte_verse != null ? d.acompte_verse : attendu);
+    $('fAcompteInfo').textContent = 'Acompte prévu au devis : ' + attendu.toLocaleString('fr-FR') +
+                                    ' €. Mettez 0 si vous ne l\'avez pas encaissé.';
+    $('fMot').value = motFacture(d);
+
+    $('factFrame').src = 'facture.html?apercu=1&v=' + Date.now();
+    $('fact').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fermerFacture() {
+    $('fact').classList.remove('on');
+    $('factFrame').src = 'about:blank';
+    factId = null; factFramePrete = false;
+    document.body.style.overflow = '';
+  }
+
+  $('factClose').addEventListener('click', fermerFacture);
+  $('factAnnuler').addEventListener('click', fermerFacture);
+  $('fact').addEventListener('click', (e) => { if (e.target === $('fact')) fermerFacture(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && factId) fermerFacture(); });
+  ['fAdresse','fAcompte'].forEach((i) => $(i).addEventListener('input', factPousser));
+  $('fMotReset').addEventListener('click', () => {
+    const d = devis.find((x) => x.id === factId); if (d) $('fMot').value = motFacture(d);
+  });
+
+  $('factEnvoyer').addEventListener('click', async () => {
+    const d = devis.find((x) => x.id === factId); if (!d) return;
+    const f = factDonnees();
+    const solde = Math.max(0, (Number(f.total) || 0) - f.acompte_verse);
+    if (!f.adresse_client && !confirm("Aucune adresse client n'est renseignée.\n" +
+        'Elle est obligatoire sur une facture. Envoyer quand même ?')) return;
+    if (!confirm('Envoyer la facture à ' + d.email + ' ?\n\nSolde à régler : ' +
+                 solde.toLocaleString('fr-FR') + ' €\n\nUne facture émise ne peut plus être supprimée.')) return;
+
+    const b = $('factEnvoyer');
+    b.disabled = true; b.textContent = 'Envoi en cours…';
+    try {
+      const { data: sess } = await sb.auth.getSession();
+      const jeton = sess && sess.session && sess.session.access_token;
+      if (!jeton) throw new Error('session expirée, reconnectez-vous');
+      const r = await fetch('/.netlify/functions/envoyer-facture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jeton },
+        body: JSON.stringify({ id: factId, acompte_verse: f.acompte_verse,
+                               adresse_client: f.adresse_client, mot: $('fMot').value })
+      });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || ('Erreur ' + r.status));
+      await chargerDevis();
+      fermerFacture();
+      toast('Facture ' + out.numero + ' envoyée ✓');
+    } catch (err) {
+      b.disabled = false; b.textContent = '🧾 Envoyer la facture';
+      toast('Envoi impossible : ' + err.message);
+    }
+  });
+
+  /* ---------------- Consultation d'un devis envoyé ----------------
+     On ouvre le document par son lien unique — exactement celui que le client
+     a reçu, avec la mention d'acceptation s'il l'a signé. */
+  let voirOuvert = false;
+
+  function ouvrirVoirDevis(id) {
+    const d = devis.find((x) => x.id === id); if (!d || !d.token) return;
+    const lien = 'devis-client.html?ref=' + encodeURIComponent(d.token);
+    $('voirTitre').textContent = 'Devis ' + (d.numero || '') +
+      (d.prenom ? ' — ' + d.prenom : '') + (d.statut === 'signé' ? ' · accepté' : '');
+    $('voirOnglet').href = lien;
+    $('voirFrame').src = lien + '&v=' + Date.now();
+    $('voirD').classList.add('on');
+    voirOuvert = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fermerVoirDevis() {
+    $('voirD').classList.remove('on');
+    $('voirFrame').src = 'about:blank';
+    voirOuvert = false;
+    document.body.style.overflow = '';
+  }
+
+  $('voirClose').addEventListener('click', fermerVoirDevis);
+  $('voirD').addEventListener('click', (e) => { if (e.target === $('voirD')) fermerVoirDevis(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && voirOuvert) fermerVoirDevis(); });
+
   /* ---------------- Espace mariés en consultation ----------------
      On charge le vrai espace dans un cadre et on lui transmet les identifiants
      du couple : c'est exactement ce qu'ils voient, et les modifications sont
@@ -722,10 +938,18 @@ Votre événement sur mesure en Provence
   const FREE_KM = 40, PRIX_KM = 0.50, ACOMPTE = 0.20;
   let prepId = null, prepOptions = [], framePrete = false;
 
+  /* On repart du plus grand numéro déjà attribué, et non du nombre de devis :
+     sinon, supprimer une demande ancienne ferait retomber le compteur sur un
+     numéro déjà utilisé, et deux devis porteraient la même référence. */
   const numeroSuivant = () => {
-    const an = new Date().getFullYear();
-    const n = devis.filter((d) => (d.numero || '').startsWith('GE-' + an)).length + 1;
-    return 'GE-' + an + '-' + String(n).padStart(3, '0');
+    const prefixe = 'GE-' + new Date().getFullYear() + '-';
+    const max = devis.reduce((m, d) => {
+      const s = String(d.numero || '');
+      if (!s.startsWith(prefixe)) return m;
+      const n = parseInt(s.slice(prefixe.length), 10);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
+    return prefixe + String(max + 1).padStart(3, '0');
   };
 
   /* Message par défaut, adapté à l'événement. Modifiable avant chaque envoi. */

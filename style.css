@@ -600,7 +600,20 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
 /* Tuile avec vrai logo (image) */
 .partner--logo { background: #fffdf7; padding: 0.9rem; }
 .partner--logo:hover { background: #fff; }
-.partner img { max-width: 80%; max-height: 66%; object-fit: contain; }
+/* Les logos partenaires arrivent souvent en capture d'écran, donc sur fond
+   blanc « incrusté ». Le mode de fusion « multiply » fait disparaître ce blanc
+   dans celui de la tuile : le logo semble détouré sans aucune retouche.
+   « contain » garantit qu'il n'est ni déformé ni rogné. */
+/* Sans « min-height: 0 », un élément de grille refuse de rétrécir sous la taille
+   de son contenu : un logo en hauteur ferait grandir sa tuile et casserait
+   l'alignement de la rangée. */
+.partner > * { min-width: 0; min-height: 0; }
+.partner img {
+  max-width: 80%; max-height: 66%;
+  width: auto; height: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
 /* Portrait / visuel matériel : on masque le texte placeholder quand une photo est définie */
 .portrait.has-img .portrait__label,
 .portrait.has-img .portrait__sprig { display: none; }
