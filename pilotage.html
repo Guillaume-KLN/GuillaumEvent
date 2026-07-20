@@ -101,7 +101,7 @@
       <img class="gate__logo" src="assets/logo-icon.png?v=3" alt="GuillaumEvent" />
       <p class="eyebrow">Espace professionnel</p>
       <h1 class="h1" style="font-size:clamp(1.8rem,6vw,2.3rem)">Pilotage</h1>
-      <p class="lead" style="margin:0.5rem auto 1.3rem">Vos mariages et vos demandes de devis.</p>
+      <p class="lead" style="margin:0.5rem auto 1.3rem">Devis, factures, clients et espaces mariés — toute votre activité au même endroit.</p>
       <form id="gateForm" class="card" style="text-align:left">
         <div class="field"><label for="mail">E-mail</label><input id="mail" type="email" autocomplete="username" required /></div>
         <div class="field" style="margin-bottom:1.25rem"><label for="pass">Mot de passe</label><input id="pass" type="password" autocomplete="current-password" required /></div>
@@ -212,7 +212,7 @@
             Mention obligatoire sur une facture.
           </div>
 
-          <h3>Acompte déjà versé</h3>
+          <h3>Montant déjà réglé</h3>
           <div class="prep__row">
             <input type="number" id="fAcompte" min="0" step="1" />
             <span style="font-size:.85rem;color:var(--color-text-dim)">€</span>
@@ -226,7 +226,18 @@
           </h3>
           <textarea id="fMot" rows="7"></textarea>
           <div style="font-size:.78rem;color:var(--color-text-dim);margin-top:.35rem">
-            L'invitation « client fidèle » et le détail chiffré sont ajoutés automatiquement.
+            Le détail chiffré est ajouté automatiquement, ainsi que cet encadré :
+          </div>
+          <div style="margin-top:.5rem;padding:.7rem .85rem;background:var(--ge-cream-light);
+                      border-left:3px solid var(--ge-gold);border-radius:0 8px 8px 0;
+                      font-size:.78rem;line-height:1.6;color:var(--color-text-dim)">
+            <strong style="color:var(--ge-gold-deep)">Et pour la suite…</strong><br>
+            Un anniversaire, un baptême, la fête d'un proche ? En tant que
+            <strong style="color:var(--ge-green-deep)">client fidèle</strong>, vous bénéficiez d'une
+            <strong style="color:var(--ge-green-deep)">remise sur vos prochaines prestations</strong>.
+            Écrivez-moi simplement, je m'en occupe.<br><br>
+            Et si vous connaissez des futurs mariés à qui je pourrais être utile,
+            parlez-leur de moi : c'est le plus beau des remerciements.
           </div>
         </div>
 
@@ -812,7 +823,7 @@ Guillaume`;
     $('fAdresse').value = d.adresse_client || '';
     $('fAcompte').value = (d.acompte_verse != null ? d.acompte_verse : attendu);
     $('fAcompteInfo').textContent = 'Acompte prévu au devis : ' + attendu.toLocaleString('fr-FR') +
-                                    ' €. Mettez 0 si vous ne l\'avez pas encaissé.';
+      ' €. Indiquez tout ce que vous avez encaissé — le total si le client a déjà tout réglé, 0 si rien.';
     $('fMot').value = motFacture(d);
 
     $('factFrame').src = 'facture.html?apercu=1&v=' + Date.now();

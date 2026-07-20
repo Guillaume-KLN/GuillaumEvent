@@ -14,6 +14,10 @@
   <script src="supabase-config.js?v=3"></script>
 
 <style>
+  /* Une règle d'auteur qui fixe « display » écrase le masquage du navigateur :
+     sans ceci, un élément portant l'attribut « hidden » resterait visible. */
+  [hidden] { display: none !important; }
+
   body { background: var(--ge-cream); padding: clamp(1rem, 4vw, 3rem) 0; }
 
   /* ---- Le document lui-même (format feuille) ---- */

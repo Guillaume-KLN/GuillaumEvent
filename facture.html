@@ -177,7 +177,7 @@
         <li>Le solde est payable <strong>à réception de la présente facture</strong>.</li>
         <li>Règlement accepté par virement bancaire, chèque ou espèces.</li>
         <li>Aucun escompte n'est accordé pour paiement anticipé.</li>
-        <li id="ligneAcompte">L'acompte versé à la réservation vient en déduction du montant total.</li>
+        <li id="ligneAcompte">Les sommes déjà réglées viennent en déduction du montant total.</li>
       </ol>
 
       <p class="mentions">
@@ -291,7 +291,9 @@
       '<div class="totaux__row" style="color:var(--color-text-dim);font-size:.85rem">' +
         '<span>TVA</span><span>Non applicable</span></div>' +
       (acompte > 0
-        ? '<div class="totaux__row totaux__row--acompte"><span>Acompte déjà versé</span><span>− ' + euro(acompte) + '</span></div>'
+        ? '<div class="totaux__row totaux__row--acompte"><span>' +
+          (acompte >= total ? 'Règlement déjà reçu' : 'Acompte déjà versé') +
+          '</span><span>− ' + euro(acompte) + '</span></div>'
         : '') +
       '<div class="totaux__row totaux__row--solde' + (acompte > 0 ? ' est-solde' : '') + '">' +
         '<span>' + (acompte > 0 ? 'Solde à régler' : 'À régler') + '</span><span>' + euro(solde) + '</span></div>';
