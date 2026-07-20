@@ -89,6 +89,14 @@
     padding: .7rem .9rem; margin-top: .8rem; font-weight: 600; color: var(--ge-gold-deep);
   }
 
+  /* Mention d'acceptation — fait foi sur le document imprimé */
+  .accepte-le {
+    clear: both; margin: 2rem 0 0; padding: .85rem 1.1rem;
+    background: var(--ge-cream-light); border-left: 3px solid var(--ge-gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: .92rem; color: var(--ge-gold-deep);
+  }
+
   /* Conditions + mentions */
   .conditions { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
   .conditions h3 {
@@ -176,6 +184,8 @@
     </table>
 
     <div class="totaux" id="totaux"></div>
+
+    <p class="accepte-le" id="accepteLe" hidden></p>
 
     <section class="conditions">
       <h3>Conditions</h3>
@@ -325,9 +335,20 @@
     $('etat').hidden = true;
     $('doc').hidden = false;
 
-    /* Le bouton d'acceptation ne s'affiche que si le devis est encore ouvert. */
-    if (d.statut === 'signé') $('accepte').style.display = 'block';
-    else $('actions').hidden = false;
+    /* Une fois accepté, le devis reste consultable et imprimable — c'est la
+       pièce que le client conserve. Seul le bouton d'acceptation disparaît. */
+    const signe = d.statut === 'signé';
+    if (signe) {
+      $('accepte').style.display = 'block';
+      $('btnAccepter').hidden = true;
+      if (d.accepte_le) {
+        $('accepteLe').innerHTML = '✓ Devis accepté par le client le <strong>' +
+          new Date(d.accepte_le).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' }) +
+          '</strong>';
+        $('accepteLe').hidden = false;
+      }
+    }
+    $('actions').hidden = false;
   }
 
   /* ---------------- Chargement ---------------- */
