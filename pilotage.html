@@ -132,6 +132,7 @@
       <nav class="tabs">
         <button class="tab on" data-p="mariages">Mariages &amp; accès</button>
         <button class="tab" data-p="devis">Demandes de devis</button>
+        <button class="tab" data-p="factures">Factures</button>
         <button class="tab" data-p="clients">Portefeuille clients</button>
         <button class="tab" data-p="visuels">Visuels réseaux</button>
       </nav>
@@ -163,6 +164,21 @@
       <section class="panel" id="p-devis">
         <h2 class="h3" style="margin-bottom:0.9rem">Demandes reçues</h2>
         <div id="lList"><div class="empty">Chargement…</div></div>
+      </section>
+
+      <!-- ---- FACTURES ---- -->
+      <section class="panel" id="p-factures">
+        <div style="display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:0.4rem">
+          <h2 class="h3" style="margin:0; flex:1">Vos factures</h2>
+          <select id="fAnnee" style="padding:.4rem .6rem;border:1px solid var(--line);border-radius:8px;background:var(--ge-white);font:inherit"></select>
+          <button class="btn btn--ghost btn--small" id="fExport">⬇ Exporter (CSV)</button>
+        </div>
+        <p style="color:var(--color-text-dim); font-size:0.9rem; margin-bottom:1.2rem">
+          Conservées sans limite de durée. La loi vous impose de les garder <b>10 ans</b> —
+          pensez à exporter le fichier une fois par an et à le ranger avec votre comptabilité.
+        </p>
+        <div id="fStats" class="stats" style="margin-bottom:1.2rem"></div>
+        <div id="fList"><div class="empty">Chargement…</div></div>
       </section>
 
       <!-- ---- PORTEFEUILLE CLIENTS ---- -->
@@ -558,7 +574,7 @@ Votre événement sur mesure en Provence
   async function chargerDevis() {
     const { data, error } = await sb.from('devis').select('*').order('created_at', { ascending: false });
     if (error) { $('lList').innerHTML = `<div class="empty">Erreur : ${esc(error.message)}</div>`; return; }
-    devis = data || []; rendreDevis(); majStats();
+    devis = data || []; rendreDevis(); rendreFactures(); majStats();
   }
 
   function rendreDevis() {
@@ -765,6 +781,119 @@ Votre événement sur mesure en Provence
     $('sProchain').textContent = futurs.length ? joursAvant(futurs[0].date_evenement) + ' j' : '—';
     $('sDevis').textContent = devis.filter((d) => d.statut === 'nouveau').length;
   }
+
+  /* ---------------- Registre des factures ----------------
+     Toutes les factures émises, par année, avec le chiffre d'affaires.
+     Une facture n'est jamais supprimée : ce registre est votre archive. */
+  const facturees = () => devis.filter((d) => d.facture_numero)
+    .sort((a, b) => String(b.facture_numero).localeCompare(String(a.facture_numero)));
+
+  const anneeDe = (d) => String(d.facture_numero || '').split('-')[1] ||
+                         String(d.facture_le || '').slice(0, 4);
+
+  function rendreAnnees() {
+    const dispo = [...new Set(facturees().map(anneeDe))].filter(Boolean).sort().reverse();
+    const sel = $('fAnnee'), courant = sel.value;
+    sel.innerHTML = dispo.length
+      ? dispo.map((a) => `<option value="${a}">${a}</option>`).join('')
+      : `<option value="">—</option>`;
+    if (dispo.includes(courant)) sel.value = courant;
+  }
+
+  function rendreFactures() {
+    rendreAnnees();
+    const an = $('fAnnee').value;
+    const liste = facturees().filter((d) => !an || anneeDe(d) === an);
+
+    if (!liste.length) {
+      $('fStats').innerHTML = '';
+      $('fList').innerHTML = `<div class="empty">Aucune facture émise${an ? ' en ' + an : ''}.<br>
+        Une facture se crée depuis l'onglet « Demandes de devis », sur une prestation signée et passée.</div>`;
+      return;
+    }
+
+    const total  = liste.reduce((s, d) => s + (Number(d.total) || 0), 0);
+    const encaisse = liste.reduce((s, d) => s + (Number(d.acompte_verse) || 0), 0);
+    const reste = Math.max(0, total - encaisse);
+    const eur = (n) => n.toLocaleString('fr-FR') + ' €';
+
+    $('fStats').innerHTML =
+      `<div class="stat"><div class="stat__n">${liste.length}</div><div class="stat__l">Facture${liste.length>1?'s':''}</div></div>` +
+      `<div class="stat"><div class="stat__n">${eur(total)}</div><div class="stat__l">Chiffre d'affaires</div></div>` +
+      `<div class="stat"><div class="stat__n">${eur(encaisse)}</div><div class="stat__l">Encaissé</div></div>` +
+      (reste > 0 ? `<div class="stat"><div class="stat__n">${eur(reste)}</div><div class="stat__l">Reste à encaisser</div></div>` : '');
+
+    $('fList').innerHTML = liste.map((d) => {
+      const t = Number(d.total) || 0, regle = Number(d.acompte_verse) || 0;
+      const solde = Math.max(0, t - regle);
+      return `<div class="lead">
+        <div class="lead__top">
+          <span class="lead__name">${esc(d.facture_numero)}</span>
+          ${solde === 0
+            ? '<span class="badge">✓ Soldée</span>'
+            : `<span class="badge" style="color:#a3402f;border-color:#a3402f">Reste ${solde.toLocaleString('fr-FR')} €</span>`}
+          <span class="lead__meta">${esc(d.prenom || '')} · ${esc(d.type_evenement || '')} · émise le ${new Date(d.facture_le).toLocaleDateString('fr-FR')}</span>
+          <span class="lead__total">${t.toLocaleString('fr-FR')} €</span>
+        </div>
+        <div class="lead__grid">
+          <span>${d.email ? '📧 <a href="mailto:'+esc(d.email)+'">'+esc(d.email)+'</a>' : ''}</span>
+          <span>📅 Prestation du ${d.date_evenement ? new Date(d.date_evenement+'T00:00:00').toLocaleDateString('fr-FR') : '—'}${d.ville ? ' · 📍 '+esc(d.ville) : ''}</span>
+          <span>💶 Réglé ${regle.toLocaleString('fr-FR')} € sur ${t.toLocaleString('fr-FR')} €</span>
+        </div>
+        <div class="lead__foot">
+          <button class="btn btn--gold btn--small" data-vfact="${d.id}">🧾 Voir la facture</button>
+          <button class="btn btn--ghost btn--small" data-fact="${d.id}">Modifier le règlement</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  $('fAnnee').addEventListener('change', rendreFactures);
+
+  $('fList').addEventListener('click', (e) => {
+    const v = e.target.closest('button[data-vfact]');
+    if (v) { ouvrirVoirFacture(v.dataset.vfact); return; }
+    const f = e.target.closest('button[data-fact]');
+    if (f) { ouvrirFacture(f.dataset.fact); return; }
+  });
+
+  function ouvrirVoirFacture(id) {
+    const d = devis.find((x) => x.id === id); if (!d || !d.facture_token) return;
+    const lien = 'facture.html?ref=' + encodeURIComponent(d.facture_token);
+    $('voirTitre').textContent = 'Facture ' + d.facture_numero + (d.prenom ? ' — ' + d.prenom : '');
+    $('voirOnglet').href = lien;
+    $('voirFrame').src = lien + '&v=' + Date.now();
+    $('voirD').classList.add('on');
+    voirOuvert = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* Export CSV — à ranger avec votre comptabilité (conservation 10 ans) */
+  $('fExport').addEventListener('click', () => {
+    const an = $('fAnnee').value;
+    const liste = facturees().filter((d) => !an || anneeDe(d) === an);
+    if (!liste.length) return toast('Aucune facture à exporter.');
+
+    const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const lignes = [['Numero','Date emission','Client','Email','Prestation','Date prestation','Lieu','Total EUR','Regle EUR','Solde EUR'].join(';')];
+    liste.slice().reverse().forEach((d) => {
+      const t = Number(d.total) || 0, r = Number(d.acompte_verse) || 0;
+      lignes.push([
+        q(d.facture_numero), q(new Date(d.facture_le).toLocaleDateString('fr-FR')),
+        q(d.prenom), q(d.email), q(d.type_evenement),
+        q(d.date_evenement ? new Date(d.date_evenement+'T00:00:00').toLocaleDateString('fr-FR') : ''),
+        q(d.ville), q(t), q(r), q(Math.max(0, t - r))
+      ].join(';'));
+    });
+
+    // Le BOM garantit que les accents s'affichent correctement dans Excel
+    const blob = new Blob(['﻿' + lignes.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'factures-guillaumevent-' + (an || 'toutes') + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Export téléchargé ✓');
+  });
 
   /* ---------------- Atelier : établir et envoyer la facture ----------------
      La facture n'a de sens qu'après la prestation, et seulement si le devis a
